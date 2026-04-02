@@ -1,0 +1,7 @@
+return {
+  _all = {
+    ROOT = { "spec/" },
+    lpath = "plugin/?.lua;plugin/?/init.lua",
+    coverage = true,
+  },
+}

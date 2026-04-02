@@ -1,0 +1,24 @@
+from_latest_tag = true
+tag_prefix = ""
+branch_whitelist = ["main"]
+ignore_merge_commits = true
+
+pre_bump_hooks = []
+
+post_bump_hooks = ["git push origin {{version}}", "git push"]
+
+[bump_profiles]
+
+
+[commit_types]
+chore = { changelog_title = "Misc", omit_from_changelog = true }
+hotfix = { changelog_title = "Hotfixes" }
+release = { changelog_title = "Releases" }
+
+[changelog]
+path = "CHANGELOG.md"
+template = "remote"
+remote = "github.com"
+repository = "lantern.wz"
+owner = "sravioli"
+authors = [{ signature = "Simone Fidanza", username = "sravioli" }]

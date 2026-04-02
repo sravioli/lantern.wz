@@ -1,0 +1,5 @@
+std = "lua51"
+
+[lints]
+shadowing = "allow"
+mixed_table = "allow"
