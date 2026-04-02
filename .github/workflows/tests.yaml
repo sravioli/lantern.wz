@@ -1,0 +1,57 @@
+---
+name: tests
+run-name: Run tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }} ${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    name: Busted tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+
+      - name: Install LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install dependencies
+        run: |
+          luarocks install busted
+          luarocks install luacov
+          luarocks install luacov-coveralls
+
+      - name: Run tests
+        run: busted --verbose
+
+      - name: Generate coverage report
+        run: luacov
+
+      - name: Print coverage summary
+        run: tail -n 15 luacov.report.out
+
+      - name: Submit to Coveralls
+        if: success() && env.COVERALLS_REPO_TOKEN != ''
+        run: luacov-coveralls --service-name github-actions --verbose
+        env:
+          COVERALLS_REPO_TOKEN: ${{ github.token }}
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: luacov.report.out
