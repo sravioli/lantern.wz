@@ -43,8 +43,8 @@ local tunpack = unpack or table.unpack
 ---@field fuzzy_description? string
 ---@field persist? boolean
 ---@field comp? fun(a: Lantern.Choice, b: Lantern.Choice): boolean
----@field format_choices? fun(internal_choices: table<string, Lantern.InternalChoice>, ctx: Lantern.BuildContext): Lantern.Choice[]
----@field format_description? fun(desc: string, fuzzy: boolean, icons: Lantern.Icons): string
+---@field format_choices? Lantern.FormatChoices
+---@field format_description? Lantern.FormatDescription
 
 ---@class Lantern.Wick
 local Wick = {}

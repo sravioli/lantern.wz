@@ -29,8 +29,11 @@ local M = {}
 ---@field alphabet string
 ---@field icons Lantern.Icons
 ---@field comp fun(sort_by: string): fun(a: Lantern.Choice, b: Lantern.Choice): boolean
----@field format_choices fun(internal_choices: table<string, Lantern.InternalChoice>, ctx: Lantern.BuildContext): Lantern.Choice[]
----@field format_description fun(desc: string, fuzzy: boolean, icons: Lantern.Icons): string
+---@field format_choices Lantern.FormatChoices
+---@field format_description Lantern.FormatDescription
+
+---@alias Lantern.FormatChoices fun(choices: table, ctx: Lantern.BuildContext): Lantern.Choice[]
+---@alias Lantern.FormatDescription fun(desc: string, fuzzy: boolean, icons: Lantern.Icons): string
 
 ---@class Lantern.Icons
 ---@field lantern string
