@@ -220,7 +220,7 @@ describe("lantern usage scenarios", function()
     assert.equal("Discrete", get_overrides().webgpu_preferred_adapter.name)
   end)
 
-  it("loads user-defined flame directories at registration and applies choices", function()
+  it("loads user-defined flame directories from the light event", function()
     local custom_dir = "C:\\wezterm\\custom_flames"
     wezterm._set_read_dir(custom_dir, {
       custom_dir .. "\\workspace.lua",
@@ -245,7 +245,7 @@ describe("lantern usage scenarios", function()
       alphabet = "abc",
       flame_dirs = { custom_dir },
     })
-    assert.equal(1, wezterm._read_dir_calls["C:/wezterm/custom_flames"])
+    assert.is_nil(wezterm._read_dir_calls["C:/wezterm/custom_flames"])
 
     local window, get_overrides = new_window()
     local selector = open_selector(lantern.light "workspace", window)

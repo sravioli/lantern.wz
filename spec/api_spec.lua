@@ -38,6 +38,13 @@ describe("lantern api", function()
     assert.equal("lantern:light:colorschemes", action.name)
   end)
 
+  it("does not scan built-in flame directories while requiring the plugin", function()
+    require "lantern.api"
+
+    assert.is_nil(next(wezterm._read_dir_calls))
+    assert.is_nil(next(wezterm._glob_calls))
+  end)
+
   it("supports callable light lookup for custom wicks", function()
     local lantern = require "lantern.api"
     lantern.add_wick("custom", {
@@ -104,7 +111,7 @@ describe("lantern api", function()
   it("retries flame directory discovery after empty cached scans", function()
     local custom_dir = "C:\\wezterm\\dynamic_flames"
     wezterm.GLOBAL.__memo_cache = {
-      ["lantern.flame_dirs:v3:C:/wezterm/dynamic_flames"] = {},
+      ["lantern.flame_dirs:v4:C:/wezterm/dynamic_flames"] = {},
     }
 
     local lantern = require "lantern.api"

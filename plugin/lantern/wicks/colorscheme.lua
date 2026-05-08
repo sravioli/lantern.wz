@@ -14,7 +14,7 @@ end
 return core.new_wick {
   title = "Lantern: colorscheme",
   name = "colorschemes",
-  flames = core.flames_from_dir { "colorschemes" },
+  flame_dirs = { { "colorschemes" } },
 
   format_choices = function(internal_choices, ctx)
     local choices = {}

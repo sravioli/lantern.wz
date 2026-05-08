@@ -6,5 +6,5 @@ return core.new_wick {
   title = "Lantern: GPU",
   name = "gpus",
   fuzzy = true,
-  flames = core.flames_from_dir { "gpus" },
+  flame_dirs = { { "gpus" } },
 }
