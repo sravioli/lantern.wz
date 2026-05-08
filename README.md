@@ -58,6 +58,8 @@ return config
 | `lantern.light(name)` | Return a WezTerm action for a custom wick. |
 | `lantern.add_wick(name, spec)` | Register a custom wick. |
 | `lantern.wick(name)` | Return a registered wick. |
+| `lantern.flames.from_dir(path_or_segments)` | Return a cached static flame list from one directory. |
+| `lantern.flames.from_dirs(paths)` | Return a cached static flame list from multiple directories. |
 | `lantern.gpu().best()` | Return the best detected GPU adapter. |
 
 ## Custom Wicks
@@ -101,6 +103,20 @@ lantern.add_wick("profiles", {
   },
 })
 ```
+
+For folder-backed flames, build a cached static list from a directory:
+
+```lua
+lantern.add_wick("profiles", {
+  title = "Lantern: profile",
+  flames = lantern.flames.from_dir(wezterm.config_dir .. "/lantern/profiles"),
+})
+```
+
+`from_dir()` scans once per config/plugin load and returns module paths. Repeated
+calls for the same directory reuse the cached list, so opening a wick does not
+rescan that folder. Built-in Lantern wicks use this path for their shipped
+flames.
 
 Each module should return:
 

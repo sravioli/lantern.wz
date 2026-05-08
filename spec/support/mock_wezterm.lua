@@ -7,6 +7,8 @@ M.config_dir = "C:\\wezterm"
 M.home_dir = "C:\\Users\\Test"
 M._events = {}
 M._logs = { info = {}, warn = {}, error = {} }
+M._read_dirs = {}
+M._read_dir_calls = {}
 
 M.nerdfonts = {
   cod_search = "search",
@@ -48,8 +50,18 @@ function M.column_width(text)
   return #tostring(text)
 end
 
-function M.read_dir(_)
-  return {}
+local function normalize_path(path)
+  return tostring(path):gsub("\\", "/")
+end
+
+function M._set_read_dir(path, entries)
+  M._read_dirs[normalize_path(path)] = entries
+end
+
+function M.read_dir(path)
+  local key = normalize_path(path)
+  M._read_dir_calls[key] = (M._read_dir_calls[key] or 0) + 1
+  return M._read_dirs[key] or {}
 end
 
 function M.log_info(message)
@@ -140,6 +152,8 @@ function M._reset()
   M.GLOBAL = {}
   M._events = {}
   M._logs = { info = {}, warn = {}, error = {} }
+  M._read_dirs = {}
+  M._read_dir_calls = {}
 end
 
 package.loaded["wezterm"] = M

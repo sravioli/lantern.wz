@@ -6,7 +6,5 @@ return core.new_wick {
   title = "Lantern: font size",
   name = "font-sizes",
   sort_by = "label",
-  flames = {
-    "lantern.flames.font-sizes.font-sizes",
-  },
+  flames = core.flames_from_dir { "font-sizes" },
 }

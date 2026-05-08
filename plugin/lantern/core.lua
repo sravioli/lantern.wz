@@ -35,7 +35,7 @@ local tunpack = unpack or table.unpack
 ---@field name? string
 ---@field title? string
 ---@field flames? table[]
----@field flame_dirs? string[]
+---@field flame_dirs? Lantern.FlameDir[]
 ---@field sort_by? string
 ---@field fuzzy? boolean
 ---@field alphabet? string
@@ -50,9 +50,13 @@ local tunpack = unpack or table.unpack
 local Wick = {}
 Wick.__index = Wick
 
+---@alias Lantern.FlameDir string|string[]
+
 local M = {
   wicks = {},
 }
+
+local flame_dir_cache = {}
 
 local function log(level, message, ...)
   if not config.get().log.enabled then
@@ -96,6 +100,32 @@ local function path_to_module(path)
   end
 
   return normalized:gsub("/", ".")
+end
+
+---@param dir_segments string[]
+---@return string|nil
+local function plugin_flame_dir(dir_segments)
+  return meta.plugin_path("plugin", "lantern", "flames", tunpack(dir_segments))
+end
+
+---@param dir Lantern.FlameDir
+---@return string|nil
+local function resolve_flame_dir(dir)
+  if type(dir) == "table" then
+    return plugin_flame_dir(dir)
+  end
+
+  return dir
+end
+
+---@param source string[]
+---@return string[]
+local function copy_list(source)
+  local copy = {}
+  for i = 1, #source do
+    copy[i] = source[i]
+  end
+  return copy
 end
 
 local function normalize_choice(item)
@@ -150,6 +180,35 @@ local function read_dir(path)
   return {}
 end
 
+---@param dir Lantern.FlameDir
+---@return string[]
+local function flame_specs_from_dir(dir)
+  local resolved = resolve_flame_dir(dir)
+  if not resolved then
+    return {}
+  end
+
+  local cache_key = normalize_path(resolved)
+  if flame_dir_cache[cache_key] then
+    return copy_list(flame_dir_cache[cache_key])
+  end
+
+  local paths = read_dir(resolved)
+  table.sort(paths)
+
+  local specs = {}
+  for i = 1, #paths do
+    if paths[i]:match "%.lua$" then
+      specs[#specs + 1] = path_to_module(paths[i])
+    end
+  end
+
+  flame_dir_cache[cache_key] = specs
+  return copy_list(specs)
+end
+
+---@param dirs Lantern.FlameDir[]
+---@return string[]
 local function flame_specs_from_dirs(dirs)
   local specs = {}
   if not dirs then
@@ -157,12 +216,9 @@ local function flame_specs_from_dirs(dirs)
   end
 
   for i = 1, #dirs do
-    local dir = dirs[i]
-    local paths = read_dir(dir)
-    for j = 1, #paths do
-      if paths[j]:match "%.lua$" then
-        specs[#specs + 1] = path_to_module(paths[j])
-      end
+    local dir_specs = flame_specs_from_dir(dirs[i])
+    for j = 1, #dir_specs do
+      specs[#specs + 1] = dir_specs[j]
     end
   end
 
@@ -389,10 +445,27 @@ function M.rekindle(cfg)
   return restored
 end
 
+---Return cached flame module paths from one directory.
+---
+---Pass a string for an absolute/custom directory, or a string array for a
+---built-in Lantern flame directory under `plugin/lantern/flames`.
+---@param dir Lantern.FlameDir
+---@return string[]
+function M.flames_from_dir(dir)
+  return flame_specs_from_dir(dir)
+end
+
+---Return cached flame module paths from multiple directories.
+---@param dirs Lantern.FlameDir[]
+---@return string[]
+function M.flames_from_dirs(dirs)
+  return flame_specs_from_dirs(dirs)
+end
+
 ---@param dir_segments string[]
 ---@return string|nil
 function M.plugin_flame_dir(dir_segments)
-  return meta.plugin_path("plugin", "lantern", "flames", tunpack(dir_segments))
+  return plugin_flame_dir(dir_segments)
 end
 
 return M

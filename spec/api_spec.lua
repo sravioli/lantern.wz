@@ -21,6 +21,11 @@ local function remove_file(path)
   os.remove(path)
 end
 
+local function plugin_flame_path(...)
+  local parts = { "C:/lantern.wz", "plugin", "lantern", "flames", ... }
+  return table.concat(parts, "/")
+end
+
 describe("lantern api", function()
   before_each(reset_modules)
 
@@ -52,6 +57,48 @@ describe("lantern api", function()
 
     assert.equal("EmitEvent", action.type)
     assert.equal("lantern:light:custom", action.name)
+  end)
+
+  it("builds cached semi-static flame lists from directories", function()
+    local custom_dir = "C:\\wezterm\\flames"
+    wezterm._set_read_dir(custom_dir, {
+      "C:\\wezterm\\flames\\beta.lua",
+      "C:\\wezterm\\flames\\ignore.txt",
+      "C:\\wezterm\\flames\\alpha.lua",
+    })
+
+    package.loaded["flames.alpha"] = {
+      glow = function()
+        return { id = "alpha", label = "Alpha" }
+      end,
+      ignite = function(cfg)
+        cfg.value = "alpha"
+      end,
+    }
+    package.loaded["flames.beta"] = {
+      glow = function()
+        return { id = "beta", label = "Beta" }
+      end,
+      ignite = function(cfg)
+        cfg.value = "beta"
+      end,
+    }
+
+    local lantern = require "lantern.api"
+    local first = lantern.flames.from_dir(custom_dir)
+    local second = lantern.flames.from_dir(custom_dir)
+    first[1] = "changed"
+    local third = lantern.flames.from_dir(custom_dir)
+
+    local wick = lantern.add_wick("custom", { flames = second })
+    wick:_initialize()
+
+    assert.equal("flames.alpha", second[1])
+    assert.equal("flames.beta", second[2])
+    assert.equal("flames.alpha", third[1])
+    assert.equal(1, wezterm._read_dir_calls["C:/wezterm/flames"])
+    assert.is_true(wick._choices.alpha ~= nil)
+    assert.is_true(wick._choices.beta ~= nil)
   end)
 
   it("opens an InputSelector and applies the selected flame", function()
@@ -191,6 +238,14 @@ describe("lantern api", function()
   end)
 
   it("ships default colorscheme and font assets", function()
+    local flame_root = plugin_flame_path()
+    wezterm._set_read_dir(flame_root .. "/colorschemes", {
+      flame_root .. "/colorschemes/kanagawa-wave.lua",
+    })
+    wezterm._set_read_dir(flame_root .. "/fonts", {
+      flame_root .. "/fonts/fira-code-nf.lua",
+    })
+
     local lantern = require "lantern.api"
     local colors = lantern.wick "colorschemes"
     local fonts = lantern.wick "fonts"

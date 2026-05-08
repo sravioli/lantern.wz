@@ -5,6 +5,7 @@ local core = require "lantern.core"
 
 ---@class Lantern
 ---@field light Lantern.LightApi
+---@field flames Lantern.FlamesApi
 ---@field config table
 ---@field color table
 ---@field state table
@@ -55,6 +56,25 @@ function light.gpu()
 end
 
 M.light = setmetatable(light, light)
+
+---@class Lantern.FlamesApi
+local flames = {}
+
+---Return cached flame module paths from one directory.
+---@param dir Lantern.FlameDir
+---@return string[]
+function flames.from_dir(dir)
+  return core.flames_from_dir(dir)
+end
+
+---Return cached flame module paths from multiple directories.
+---@param dirs Lantern.FlameDir[]
+---@return string[]
+function flames.from_dirs(dirs)
+  return core.flames_from_dirs(dirs)
+end
+
+M.flames = flames
 M.config = config
 M.color = require "lantern.color"
 M.state = require "lantern.state"

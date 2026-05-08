@@ -3,38 +3,6 @@
 local core = require "lantern.core"
 local format = require "lantern.format"
 
-local flames = {
-  "lantern.flames.colorschemes.bamboo-light",
-  "lantern.flames.colorschemes.bamboo-multiplex",
-  "lantern.flames.colorschemes.bamboo",
-  "lantern.flames.colorschemes.carbonfox",
-  "lantern.flames.colorschemes.catppuccin-frappe",
-  "lantern.flames.colorschemes.catppuccin-latte",
-  "lantern.flames.colorschemes.catppuccin-macchiato",
-  "lantern.flames.colorschemes.catppuccin-mocha",
-  "lantern.flames.colorschemes.dawnfox",
-  "lantern.flames.colorschemes.dayfox",
-  "lantern.flames.colorschemes.dracula",
-  "lantern.flames.colorschemes.duskfox",
-  "lantern.flames.colorschemes.eldritch",
-  "lantern.flames.colorschemes.hardhacker",
-  "lantern.flames.colorschemes.kanagawa-dragon",
-  "lantern.flames.colorschemes.kanagawa-lotus",
-  "lantern.flames.colorschemes.kanagawa-wave",
-  "lantern.flames.colorschemes.nightfox",
-  "lantern.flames.colorschemes.nordfox",
-  "lantern.flames.colorschemes.poimandres-storm",
-  "lantern.flames.colorschemes.poimandres",
-  "lantern.flames.colorschemes.rose-pine-dawn",
-  "lantern.flames.colorschemes.rose-pine-moon",
-  "lantern.flames.colorschemes.rose-pine",
-  "lantern.flames.colorschemes.terafox",
-  "lantern.flames.colorschemes.tokyonight-day",
-  "lantern.flames.colorschemes.tokyonight-moon",
-  "lantern.flames.colorschemes.tokyonight-night",
-  "lantern.flames.colorschemes.tokyonight-storm",
-}
-
 local function fallback_foreground(ctx)
   local cfg = ctx.window and ctx.window:effective_config() or {}
   local scheme_name = cfg.color_scheme
@@ -46,7 +14,7 @@ end
 return core.new_wick {
   title = "Lantern: colorscheme",
   name = "colorschemes",
-  flames = flames,
+  flames = core.flames_from_dir { "colorschemes" },
 
   format_choices = function(internal_choices, ctx)
     local choices = {}
