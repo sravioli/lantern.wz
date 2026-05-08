@@ -1,5 +1,6 @@
 # lantern.wz
 
+[![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/michaelbrusegard/awesome-wezterm)
 [![Tests](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/tests.yaml?label=Tests&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=tests)
 [![Lint](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/lint.yaml?label=Lint&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=lint)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/sravioli/lantern.wz?label=Coverage&logo=coveralls)](https://coveralls.io/github/sravioli/lantern.wz)
@@ -45,8 +46,9 @@ Lantern loads these plugin dependencies automatically:
 
 ### Type annotations
 
-Lantern ships LuaCATS annotations. After installing WezTerm Lua types, annotate
-the import to get completion and type checking:
+Lantern ships LuaCATS annotations. After installing
+[wezterm-types](https://github.com/DrKJeff16/wezterm-types), annotate the import
+to get completion and type checking:
 
 ```lua
 ---@type Lantern
