@@ -27,20 +27,20 @@ jobs:
           git config --global user.name github-actions;
 
       - name: Fetch latest tag
-        run: >-
-          echo "LATEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)"
-          >> "$GITHUB_ENV"
+        run: |
+          latest_tag="$(git describe --tags "$(git rev-list --tags --max-count=1)")"
+          echo "LATEST_TAG=$latest_tag" >> "$GITHUB_ENV"
 
       - name: SemVer release
         uses: cocogitto/cocogitto-action@v3.5
-        id: relase
+        id: release
 
       - name: Generate changelog
         run: >-
-          cog changelog --at ${{env.LATEST_TAG }} --template
+          cog changelog --at ${{ env.LATEST_TAG }} --template
           remote > GITHUB_CHANGELOG.md
 
-      - name: print
+      - name: Print latest tag
         run: echo ${{ env.LATEST_TAG }}
 
       - name: Upload github release

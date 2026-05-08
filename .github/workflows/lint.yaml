@@ -46,7 +46,7 @@ jobs:
         run: luarocks install luacheck
 
       - name: Run luacheck
-        run: luacheck plugin/
+        run: luacheck .
 
   selene:
     name: Selene
@@ -62,4 +62,4 @@ jobs:
           args: --version
 
       - name: Run selene
-        run: selene --display-style=quiet plugin/
+        run: selene --display-style=quiet .
