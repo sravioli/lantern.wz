@@ -4,20 +4,20 @@
 [![Lint](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/lint.yaml?label=Lint&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=lint)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/sravioli/lantern.wz?label=Coverage&logo=coveralls)](https://coveralls.io/github/sravioli/lantern.wz)
 
-Configurable selection workflows for
-[WezTerm](https://wezfurlong.org/wezterm/) plugins and configuration code.
+Selection workflows for [WezTerm](https://wezfurlong.org/wezterm/) plugins and
+configuration code.
 
-Lantern exposes selection actions as named **wicks**. Each wick is backed by
-one or more **flames** that provide choices with `glow()` and apply selections
-with `ignite(config, ctx)`.
+Lantern calls each selector a wick. A wick is backed by one or more flames,
+which provide choices with `glow()` and apply selections with
+`ignite(config, ctx)`.
 
-- Built-in wicks for colorschemes, fonts, font sizing, GPU selection, window
-  appearance, cursor style, ligatures, and tab bar style
+- Built-in wicks for colorschemes, fonts, font sizing, GPUs, window appearance,
+  cursor style, ligatures, and tab bar style
 - User-defined wicks backed by inline flames, module flames, or flame folders
-- Persistent selections restored during startup with `lantern.rekindle(config)`
+- Persisted selections restored during startup with `lantern.rekindle(config)`
 - Safe reset handling for choices named `reset`
 - Cached flame directory discovery through `memo.wz`
-- Color preview formatting for colorscheme choices
+- Color previews for colorscheme choices
 - Shared logging and helpers through `log.wz`, `memo.wz`, and `warp.wz`
 
 ## Installation
@@ -48,7 +48,7 @@ annotate the import to get autocompletion and type checking:
 local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
 ```
 
-## Quick Start
+## Quick start
 
 ```lua
 local wezterm = require "wezterm"
@@ -81,7 +81,7 @@ config.keys = {
 return config
 ```
 
-## Built-In Wicks
+## Built-in wicks
 
 | Wick | Action | Description |
 | --- | --- | --- |
@@ -170,7 +170,7 @@ lantern.setup {
 | `defaults.fuzzy_description` | string | `"Search"` | Prompt text in fuzzy mode. |
 | `defaults.alphabet` | string | digits and letters | Input selector shortcut alphabet. |
 
-## Custom Wicks
+## Custom wicks
 
 A wick is a named collection of flames. A flame can expose either:
 
@@ -239,9 +239,9 @@ return M
 ### Folder-backed flames
 
 Use `flame_dirs` when a wick should load every `.lua` flame module from a
-folder. This is the recommended path for user-defined stores/assets because
-the folder is scanned on the first time the wick is opened, not while the
-plugin is being required.
+folder. This is the better default for user-defined stores or assets because
+Lantern scans the folder the first time the wick opens, not while WezTerm is
+requiring the plugin.
 
 ```lua
 lantern.add_wick("profiles", {
@@ -256,8 +256,8 @@ lantern.add_wick("profiles", {
 segments such as `{ "colorschemes" }`, which Lantern resolves under
 `plugin/lantern/flames`.
 
-For advanced cases, `lantern.flames.from_dir(path)` returns a cached list of
-module paths immediately:
+For cases where you really do want an immediate module list,
+`lantern.flames.from_dir(path)` returns cached module paths:
 
 ```lua
 lantern.add_wick("profiles", {
@@ -266,10 +266,10 @@ lantern.add_wick("profiles", {
 })
 ```
 
-Use immediate expansion only when you specifically want a static module list at
-configuration time. `flame_dirs` is safer for normal WezTerm picker flows.
+Use immediate expansion only when the list should be built during config load.
+For normal selector flows, prefer `flame_dirs`.
 
-## Choice Model
+## Choice model
 
 `glow()` may return a string, number, choice table, or list of choice tables.
 Lantern normalizes each entry into this shape:
@@ -323,7 +323,7 @@ selections.
 Lantern also performs a one-time migration from legacy picker state by
 rewriting module paths from `picker.assets.*` to `lantern.flames.*`.
 
-## GPU Helper
+## GPU helper
 
 The GPU flame can be used without opening the selector:
 
@@ -335,8 +335,8 @@ if gpu then
 end
 ```
 
-The helper prefers discrete GPUs, then integrated GPUs, then other adapters,
-using the preferred backend for the current platform when possible.
+The helper prefers discrete GPUs, then integrated GPUs, then other adapters. It
+uses the preferred backend for the current platform when possible.
 
 ## Examples
 
