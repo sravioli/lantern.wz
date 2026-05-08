@@ -23,5 +23,6 @@ read_globals = {
 }
 
 exclude_files = {
+  ".luarocks/**",
   "spec/**",
 }
