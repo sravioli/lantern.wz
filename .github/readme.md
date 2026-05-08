@@ -18,7 +18,8 @@ which provide choices with `glow()` and apply selections with
 - Safe reset handling for choices named `reset`
 - Cached flame directory discovery through `memo.wz`
 - Color previews for colorscheme choices
-- Shared logging and helpers through `log.wz`, `memo.wz`, and `warp.wz`
+- Shared logging, formatting, and helpers through `log.wz`, `memo.wz`,
+  `ribbon.wz`, and `warp.wz`
 
 ## Installation
 
@@ -36,6 +37,7 @@ Lantern loads these WezTerm plugin dependencies automatically:
 
 - [`log.wz`](https://github.com/sravioli/log.wz) for tagged logging
 - [`memo.wz`](https://github.com/sravioli/memo.wz) for cache and state storage
+- [`ribbon.wz`](https://github.com/sravioli/ribbon.wz) for formatted text segments
 - [`warp.wz`](https://github.com/sravioli/warp.wz) for path, table, and string helpers
 
 ### Type annotations
