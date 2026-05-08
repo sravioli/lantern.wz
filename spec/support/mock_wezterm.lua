@@ -10,6 +10,8 @@ M._events = {}
 M._logs = { info = {}, warn = {}, error = {} }
 M._read_dirs = {}
 M._read_dir_calls = {}
+M._globs = {}
+M._glob_calls = {}
 
 M.nerdfonts = {
   cod_search = "search",
@@ -63,6 +65,16 @@ function M.read_dir(path)
   local key = normalize_path(path)
   M._read_dir_calls[key] = (M._read_dir_calls[key] or 0) + 1
   return M._read_dirs[key] or {}
+end
+
+function M._set_glob(pattern, entries)
+  M._globs[normalize_path(pattern)] = entries
+end
+
+function M.glob(pattern)
+  local key = normalize_path(pattern)
+  M._glob_calls[key] = (M._glob_calls[key] or 0) + 1
+  return M._globs[key] or {}
 end
 
 function M.log_info(message)
@@ -386,6 +398,8 @@ function M._reset()
   M._logs = { info = {}, warn = {}, error = {} }
   M._read_dirs = {}
   M._read_dir_calls = {}
+  M._globs = {}
+  M._glob_calls = {}
 end
 
 package.loaded["wezterm"] = M

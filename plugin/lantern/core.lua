@@ -159,14 +159,47 @@ local function require_flame(spec)
   return spec, spec.module_path
 end
 
-local function read_dir(path)
+local function read_dir_once(path)
   if not wezterm.read_dir then
-    return {}
+    return nil, "wezterm.read_dir is unavailable"
   end
 
   local ok, result = pcall(wezterm.read_dir, path)
   if ok and type(result) == "table" then
     return result
+  end
+
+  return nil, result
+end
+
+local function glob_lua_files(path)
+  if not wezterm.glob then
+    return {}
+  end
+
+  local pattern = normalize_path(path):gsub("/+$", "") .. "/*.lua"
+  local ok, result = pcall(wezterm.glob, pattern)
+  if ok and type(result) == "table" then
+    return result
+  end
+
+  return {}
+end
+
+local function read_dir(path)
+  local normalized = normalize_path(path)
+  local entries, err = read_dir_once(normalized)
+  if entries and #entries > 0 then
+    return entries
+  end
+
+  entries = glob_lua_files(normalized)
+  if #entries > 0 then
+    return entries
+  end
+
+  if err then
+    log("warn", "unable to read flame directory %s: %s", path, tostring(err))
   end
 
   return {}

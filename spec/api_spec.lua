@@ -119,6 +119,20 @@ describe("lantern api", function()
     assert.equal(2, wezterm._read_dir_calls["C:/wezterm/dynamic_flames"])
   end)
 
+  it("falls back to glob when directory reads are empty", function()
+    local custom_dir = "C:\\wezterm\\glob_flames"
+    wezterm._set_glob(custom_dir .. "/*.lua", {
+      "C:\\wezterm\\glob_flames\\alpha.lua",
+    })
+
+    local lantern = require "lantern.api"
+    local specs = lantern.flames.from_dir(custom_dir)
+
+    assert.equal("glob_flames.alpha", specs[1])
+    assert.equal(1, wezterm._read_dir_calls["C:/wezterm/glob_flames"])
+    assert.equal(1, wezterm._glob_calls["C:/wezterm/glob_flames/*.lua"])
+  end)
+
   it("opens an InputSelector and applies the selected flame", function()
     local lantern = require "lantern.api"
     lantern.add_wick("custom", {
