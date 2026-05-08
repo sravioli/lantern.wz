@@ -85,7 +85,7 @@ local defaults = {
     sort_by = "id",
     fuzzy = true,
     description = "Select a flame.",
-    fuzzy_description = "Light",
+    fuzzy_description = "Search",
     alphabet = "1234567890abcdefghilmnopqrstuvwxyz",
 
     icons = {
