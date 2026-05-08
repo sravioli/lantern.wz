@@ -12,7 +12,7 @@ local cache = deps.memo.cache.namespace "lantern.flame_dirs"
 local logger = deps.log.new "Lantern"
 local warp_path = deps.warp.path
 local tbl = deps.warp.table
-local FLAME_DIR_CACHE_VERSION = "v2"
+local FLAME_DIR_CACHE_VERSION = "v3"
 
 ---@class Lantern.Choice
 ---@field id string
@@ -159,27 +159,14 @@ local function require_flame(spec)
   return spec, spec.module_path
 end
 
-local function read_dir_once(path)
-  if not wezterm.read_dir then
-    return nil, "wezterm.read_dir is unavailable"
-  end
-
-  local ok, result = pcall(wezterm.read_dir, path)
-  if ok and type(result) == "table" then
-    return result
-  end
-
-  return nil, result
-end
-
 local function glob_lua_files(path)
   if not wezterm.glob then
     return {}
   end
 
   local pattern = normalize_path(path):gsub("/+$", "") .. "/*.lua"
-  local ok, result = pcall(wezterm.glob, pattern)
-  if ok and type(result) == "table" then
+  local result = wezterm.glob(pattern)
+  if type(result) == "table" then
     return result
   end
 
@@ -187,19 +174,16 @@ local function glob_lua_files(path)
 end
 
 local function read_dir(path)
-  local normalized = normalize_path(path)
-  local entries, err = read_dir_once(normalized)
-  if entries and #entries > 0 then
-    return entries
+  if wezterm.read_dir then
+    local entries = wezterm.read_dir(path)
+    if type(entries) == "table" and #entries > 0 then
+      return entries
+    end
   end
 
-  entries = glob_lua_files(normalized)
+  local entries = glob_lua_files(path)
   if #entries > 0 then
     return entries
-  end
-
-  if err then
-    log("warn", "unable to read flame directory %s: %s", path, tostring(err))
   end
 
   return {}
@@ -286,8 +270,17 @@ function M.new_wick(opts)
   self._choices = {}
   self._initialized = false
   self._event_registered = false
-  self._flames = opts.flames or {}
-  self._flame_dirs = opts.flame_dirs or {}
+  self._flames = {}
+
+  local static_flames = opts.flames or {}
+  for i = 1, #static_flames do
+    self._flames[#self._flames + 1] = static_flames[i]
+  end
+
+  local dir_flames = flame_specs_from_dirs(opts.flame_dirs or {})
+  for i = 1, #dir_flames do
+    self._flames[#self._flames + 1] = dir_flames[i]
+  end
 
   self.sort_by = opts.sort_by or cfg.defaults.sort_by
   self.fuzzy = pick_opt(opts.fuzzy, cfg.defaults.fuzzy)
@@ -332,11 +325,6 @@ function Wick:_initialize()
   local flame_specs = {}
   for i = 1, #self._flames do
     flame_specs[#flame_specs + 1] = self._flames[i]
-  end
-
-  local dir_specs = flame_specs_from_dirs(self._flame_dirs)
-  for i = 1, #dir_specs do
-    flame_specs[#flame_specs + 1] = dir_specs[i]
   end
 
   for i = 1, #flame_specs do

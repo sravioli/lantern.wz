@@ -104,7 +104,7 @@ describe("lantern api", function()
   it("retries flame directory discovery after empty cached scans", function()
     local custom_dir = "C:\\wezterm\\dynamic_flames"
     wezterm.GLOBAL.__memo_cache = {
-      ["lantern.flame_dirs:C:/wezterm/dynamic_flames"] = {},
+      ["lantern.flame_dirs:v3:C:/wezterm/dynamic_flames"] = {},
     }
 
     local lantern = require "lantern.api"
