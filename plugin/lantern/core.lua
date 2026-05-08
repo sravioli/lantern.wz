@@ -1,12 +1,17 @@
 ---@module "lantern.core"
 
 local config = require "lantern.config"
+local deps = require "lantern.deps"
 local meta = require "lantern.meta"
 local state = require "lantern.state"
 local wezterm = require "wezterm"
 
 -- selene: allow(incorrect_standard_library_use)
 local tunpack = unpack or table.unpack
+local cache = deps.memo.cache.namespace "lantern.flame_dirs"
+local logger = deps.log.new "Lantern"
+local warp_path = deps.warp.path
+local tbl = deps.warp.table
 
 ---@class Lantern.Choice
 ---@field id string
@@ -56,27 +61,21 @@ local M = {
   wicks = {},
 }
 
-local flame_dir_cache = {}
-
 local function log(level, message, ...)
   if not config.get().log.enabled then
     return
   end
 
-  local fn = wezterm["log_" .. level]
-  if not fn then
-    return
-  end
-
-  if select("#", ...) > 0 then
-    fn(("[lantern] " .. message):format(...))
+  local fn = logger[level]
+  if type(fn) == "function" then
+    fn(logger, message, ...)
   else
-    fn("[lantern] " .. message)
+    logger:log(level, message, ...)
   end
 end
 
-local function normalize_path(path)
-  return path:gsub("\\", "/")
+local function normalize_path(value)
+  return warp_path.normalize(value)
 end
 
 local function starts_with(value, prefix)
@@ -118,16 +117,8 @@ local function resolve_flame_dir(dir)
   return dir
 end
 
----@param source string[]
----@return string[]
-local function copy_list(source)
-  local copy = {}
-  for i = 1, #source do
-    copy[i] = source[i]
-  end
-  return copy
-end
-
+---@param item Lantern.Choice|table|string|number
+---@return Lantern.Choice
 local function normalize_choice(item)
   if type(item) == "table" then
     item.id = tostring(item.id)
@@ -189,22 +180,21 @@ local function flame_specs_from_dir(dir)
   end
 
   local cache_key = normalize_path(resolved)
-  if flame_dir_cache[cache_key] then
-    return copy_list(flame_dir_cache[cache_key])
-  end
+  local specs = cache.compute(cache_key, function()
+    local paths = read_dir(resolved)
+    table.sort(paths)
 
-  local paths = read_dir(resolved)
-  table.sort(paths)
-
-  local specs = {}
-  for i = 1, #paths do
-    if paths[i]:match "%.lua$" then
-      specs[#specs + 1] = path_to_module(paths[i])
+    local discovered = {}
+    for i = 1, #paths do
+      if paths[i]:match "%.lua$" then
+        discovered[#discovered + 1] = path_to_module(paths[i])
+      end
     end
-  end
 
-  flame_dir_cache[cache_key] = specs
-  return copy_list(specs)
+    return discovered
+  end)
+
+  return tbl.copy(specs)
 end
 
 ---@param dirs Lantern.FlameDir[]

@@ -1,13 +1,9 @@
 ---@module "lantern.meta"
 
+local path = require("lantern.deps").warp.path
 local wezterm = require "wezterm"
 
 local M = {}
-
-local function sep()
-  -- selene: allow(incorrect_standard_library_use)
-  return package.config:sub(1, 1)
-end
 
 local function find_plugin_dir()
   if wezterm.GLOBAL and wezterm.GLOBAL.__lantern_plugin_dir then
@@ -40,13 +36,7 @@ function M.plugin_path(...)
     return nil
   end
 
-  local parts = { ... }
-  local result = dir
-  local separator = sep()
-  for i = 1, #parts do
-    result = result .. separator .. parts[i]
-  end
-  return result
+  return path.concat(dir, ...)
 end
 
 return M

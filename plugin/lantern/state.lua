@@ -1,56 +1,36 @@
 ---@module "lantern.state"
 
 local config = require "lantern.config"
+local deps = require "lantern.deps"
 local wezterm = require "wezterm"
+
+local logger = deps.log.new "Lantern.State"
+local path = deps.warp.path
+local state = deps.memo.state
+local tbl = deps.warp.table
 
 local M = {}
 
-local loaded_path
-local loaded = false
-local data = {}
-
-local function log_warn(message)
-  if wezterm.log_warn then
-    wezterm.log_warn("[lantern.state] " .. message)
-  end
-end
-
-local function path_sep()
-  -- selene: allow(incorrect_standard_library_use)
-  return package.config:sub(1, 1)
-end
-
-local function join(...)
-  local sep = path_sep()
-  local parts = { ... }
-  local result = tostring(parts[1] or "")
-  for i = 2, #parts do
-    local part = tostring(parts[i] or "")
-    if result:sub(-1) == sep then
-      result = result .. part
-    else
-      result = result .. sep .. part
-    end
-  end
-  return result
-end
+local active_store
+local active_store_path
+local legacy_store
+local legacy_store_path
 
 local function state_dir()
-  local sep = path_sep()
   local dir
-  if sep == "\\" then
+  if path.separator == "\\" then
     dir = os.getenv "LOCALAPPDATA" or os.getenv "APPDATA"
     if dir then
-      dir = join(dir, "wezterm")
+      dir = path.concat(dir, "wezterm")
     end
   else
     local xdg = os.getenv "XDG_STATE_HOME"
     if xdg then
-      dir = join(xdg, "wezterm")
+      dir = path.concat(xdg, "wezterm")
     else
       local home = os.getenv "HOME"
       if home then
-        dir = join(home, ".local", "state", "wezterm")
+        dir = path.concat(home, ".local", "state", "wezterm")
       end
     end
   end
@@ -61,7 +41,7 @@ end
 ---@param filename string
 ---@return string
 local function default_state_path(filename)
-  return join(state_dir(), filename)
+  return path.concat(state_dir(), filename)
 end
 
 local function active_path()
@@ -74,59 +54,35 @@ local function legacy_path()
   return cfg.persistence.legacy_path or default_state_path "picker-state.json"
 end
 
-local function read_file(path)
-  local fh = io.open(path, "r")
-  if not fh then
-    return nil
-  end
-
-  local content = fh:read "*a"
-  fh:close()
-  return content
+---@param store_path string
+---@return memo.state.Store
+local function new_store(store_path)
+  return state.new {
+    path = store_path,
+    auto_load = true,
+    auto_save = true,
+    async = false,
+  }
 end
 
-local function write_file(path, content)
-  local fh, err = io.open(path, "w")
-  if not fh then
-    log_warn(("unable to write %s: %s"):format(path, tostring(err)))
-    return false
+---@return memo.state.Store
+local function get_active_store()
+  local store_path = active_path()
+  if not active_store or active_store_path ~= store_path then
+    active_store_path = store_path
+    active_store = new_store(store_path)
   end
-
-  fh:write(content)
-  fh:close()
-  return true
+  return active_store
 end
 
-local function decode_file(path)
-  if not wezterm.serde or not wezterm.serde.json_decode then
-    return {}
+---@return memo.state.Store
+local function get_legacy_store()
+  local store_path = legacy_path()
+  if not legacy_store or legacy_store_path ~= store_path then
+    legacy_store_path = store_path
+    legacy_store = new_store(store_path)
   end
-
-  local content = read_file(path)
-  if not content or content == "" then
-    return {}
-  end
-
-  local ok, decoded = pcall(wezterm.serde.json_decode, content)
-  if not ok or type(decoded) ~= "table" then
-    log_warn(("invalid JSON in %s"):format(path))
-    return {}
-  end
-
-  return decoded
-end
-
-local function encode(value)
-  if not wezterm.serde or not wezterm.serde.json_encode then
-    return nil
-  end
-
-  local ok, encoded = pcall(wezterm.serde.json_encode, value)
-  if not ok then
-    log_warn "unable to encode state"
-    return nil
-  end
-  return encoded
+  return legacy_store
 end
 
 local function migrate_legacy_entry(entry)
@@ -134,11 +90,7 @@ local function migrate_legacy_entry(entry)
     return entry
   end
 
-  local migrated = {}
-  for key, value in pairs(entry) do
-    migrated[key] = value
-  end
-
+  local migrated = tbl.copy(entry)
   if type(migrated.module) == "string" then
     migrated.module = migrated.module:gsub("^picker%.assets%.", "lantern.flames.")
   end
@@ -155,26 +107,25 @@ local function migrate_legacy_state(legacy)
 end
 
 local function ensure_loaded()
-  local path = active_path()
-  if loaded and loaded_path == path then
-    return
-  end
-
-  loaded = true
-  loaded_path = path
-  data = decode_file(path)
+  local store = get_active_store()
+  local data = store:restore()
 
   if next(data) ~= nil then
-    return
+    return store
   end
 
-  local legacy = decode_file(legacy_path())
+  local legacy = get_legacy_store():restore()
   if next(legacy) == nil then
-    return
+    return store
   end
 
-  data = migrate_legacy_state(legacy)
-  M.flush()
+  local migrated = migrate_legacy_state(legacy)
+  for wick_name, entry in pairs(migrated) do
+    store:set(wick_name, entry)
+  end
+  logger:info("migrated legacy picker state into %s", active_path())
+
+  return store
 end
 
 ---Persist current state to disk.
@@ -183,10 +134,7 @@ function M.flush()
     return
   end
 
-  local encoded = encode(data)
-  if encoded then
-    write_file(active_path(), encoded)
-  end
+  get_active_store():save()
 end
 
 ---@param wick_name string
@@ -196,41 +144,32 @@ function M.save(wick_name, entry)
     return
   end
 
-  ensure_loaded()
-  data[wick_name] = entry
-  M.flush()
+  ensure_loaded():set(wick_name, entry)
 end
 
 ---@param wick_name string
 ---@return table|nil
 function M.get(wick_name)
-  ensure_loaded()
-  return data[wick_name]
+  return ensure_loaded():get(wick_name)
 end
 
 ---@param wick_name? string
 function M.clear(wick_name)
-  ensure_loaded()
-
-  if wick_name then
-    data[wick_name] = nil
-  else
-    for key in pairs(data) do
-      data[key] = nil
-    end
+  if not config.get().persistence.enabled then
+    return
   end
 
-  M.flush()
+  local store = ensure_loaded()
+  if wick_name then
+    store:delete(wick_name)
+  else
+    store:clear()
+  end
 end
 
 ---@return table
 function M.all()
-  ensure_loaded()
-  local copy = {}
-  for key, value in pairs(data) do
-    copy[key] = value
-  end
-  return copy
+  return ensure_loaded():restore()
 end
 
 ---@return string
@@ -244,9 +183,10 @@ function M.legacy_path()
 end
 
 function M._reset_for_tests()
-  loaded_path = nil
-  loaded = false
-  data = {}
+  active_store = nil
+  active_store_path = nil
+  legacy_store = nil
+  legacy_store_path = nil
 end
 
 return M

@@ -19,6 +19,9 @@ local wezterm = require "wezterm"
 local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
 ```
 
+Lantern loads `log.wz`, `memo.wz`, and `warp.wz` as WezTerm plugin
+dependencies.
+
 ## Quick Start
 
 ```lua

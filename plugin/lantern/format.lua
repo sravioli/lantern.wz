@@ -1,6 +1,7 @@
 ---@module "lantern.format"
 
 local config = require "lantern.config"
+local str = require("lantern.deps").warp.string
 local wezterm = require "wezterm"
 
 local M = {}
@@ -34,10 +35,7 @@ end
 ---@param text string
 ---@return integer
 function M.width(text)
-  if wezterm.column_width then
-    return wezterm.column_width(text)
-  end
-  return #tostring(text)
+  return str.width(text)
 end
 
 ---@param parts table

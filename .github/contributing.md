@@ -48,6 +48,10 @@ We do not currently accept translations or outreach-only contributions.
    )
    ```
 
+   Lantern loads `log.wz`, `memo.wz`, and `warp.wz` through
+   `wezterm.plugin.require`, so keep those dependencies available when testing
+   offline or from local checkouts.
+
 ## Local Checks
 
 Run these before opening a pull request:

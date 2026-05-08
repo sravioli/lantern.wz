@@ -1,5 +1,7 @@
 ---@module "lantern.config"
 
+local tbl = require("lantern.deps").warp.table
+
 ---@class Lantern.Config
 ---@field log Lantern.LogConfig
 ---@field persistence Lantern.PersistenceConfig
@@ -120,43 +122,11 @@ local defaults = {
 
 local config = defaults
 
-local function is_array(t)
-  return type(t) == "table" and t[1] ~= nil
-end
-
-local function deep_copy(value)
-  if type(value) ~= "table" then
-    return value
-  end
-
-  local copy = {}
-  for k, v in pairs(value) do
-    copy[k] = deep_copy(v)
-  end
-  return copy
-end
-
-local function deep_merge(dst, src)
-  if type(src) ~= "table" then
-    return dst
-  end
-
-  for key, value in pairs(src) do
-    if type(value) == "table" and type(dst[key]) == "table" and not is_array(value) then
-      deep_merge(dst[key], value)
-    else
-      dst[key] = value
-    end
-  end
-
-  return dst
-end
-
 ---Merge user configuration into Lantern defaults.
 ---@param opts? table
 ---@return Lantern.Config
 function M.setup(opts)
-  config = deep_merge(deep_copy(defaults), opts or {})
+  config = tbl.merge("force", tbl.deepcopy(defaults), opts or {})
   return config
 end
 
@@ -168,7 +138,7 @@ end
 
 ---@return Lantern.Config
 function M.defaults()
-  return deep_copy(defaults)
+  return tbl.deepcopy(defaults)
 end
 
 return M

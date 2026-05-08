@@ -1,37 +1,16 @@
 ---@module "lantern.flames.gpus.gpus"
 
+local deps = require "lantern.deps"
 local wezterm = require "wezterm"
+
+local logger = deps.log.new "Lantern.GPU"
+local platform = deps.warp.filesystem.platform().os
 
 ---@alias Gpu.BackEnd "Vulkan"|"Metal"|"Gl"|"Dx12"
 ---@alias Gpu.DeviceType "DiscreteGpu"|"IntegratedGpu"|"Cpu"|"Other"
 
 ---@class Lantern.Flame
 local M = {}
-
-local function log_error(message, ...)
-  if wezterm.log_error then
-    wezterm.log_error(("[lantern.gpu] " .. message):format(...))
-  end
-end
-
-local function platform()
-  -- selene: allow(incorrect_standard_library_use)
-  local sep = package.config:sub(1, 1)
-  if sep == "\\" then
-    return "windows"
-  end
-
-  local uname = io.popen and io.popen "uname -s 2>/dev/null"
-  if uname then
-    local value = uname:read "*l"
-    uname:close()
-    if value == "Darwin" then
-      return "mac"
-    end
-  end
-
-  return "linux"
-end
 
 local function enumerate_gpus()
   if wezterm.gui and wezterm.gui.enumerate_gpus then
@@ -50,7 +29,7 @@ local Gpu = {
   },
 }
 
-Gpu._backends = Gpu.AVAILABLE_BACKENDS[platform()] or { "Vulkan", "Gl" }
+Gpu._backends = Gpu.AVAILABLE_BACKENDS[platform] or { "Vulkan", "Gl" }
 Gpu._preferred_backend = Gpu._backends[1]
 
 for i = 1, #Gpu.ENUMERATED_GPUS do
@@ -83,7 +62,7 @@ M.ignite = function(cfg, opts)
   local gpu_info = Gpu.VendorMap[tostring(opts.choice.id)]
 
   if not gpu_info then
-    log_error("selected GPU vendor %s not found", tostring(opts.choice.id))
+    logger:error("selected GPU vendor %s not found", tostring(opts.choice.id))
     return
   end
 
@@ -105,13 +84,13 @@ M.best = function()
   end
 
   if not selected_table then
-    log_error "no GPU adapters found; using default adapter"
+    logger:error "no GPU adapters found; using default adapter"
     return nil
   end
 
   local gpu_choice = selected_table[Gpu._preferred_backend]
   if not gpu_choice then
-    log_error("preferred backend %s not available; using first backend", Gpu._preferred_backend)
+    logger:error("preferred backend %s not available; using first backend", Gpu._preferred_backend)
     local first_backend = next(selected_table)
     gpu_choice = selected_table[first_backend]
   end
