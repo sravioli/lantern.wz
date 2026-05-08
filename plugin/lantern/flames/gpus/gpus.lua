@@ -119,6 +119,4 @@ M.best = function()
   return gpu_choice
 end
 
-M.pick_best = M.best
-
 return M
