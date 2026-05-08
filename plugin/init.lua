@@ -2,15 +2,8 @@
 local wz = require "wezterm" --[[@as Wezterm]]
 
 ---Locate the plugin's `plugin_dir` and add it to `package.path`.
----
----Iterates the installed WezTerm plugins looking for one whose URL
----contains `name`. When found, appends the plugin's
----`plugin_dir/plugin/?.lua` entry to `package.path` so that
----sub-modules can be loaded with `require`. Does nothing if the
----path entry already exists or no matching plugin is found.
----
 ---@param name string Substring to match against plugin URLs.
----@return nil
+---@return table|nil plugin Installed plugin entry.
 local function bootstrap(name)
   -- selene: allow(incorrect_standard_library_use)
   local sep = package.config:sub(1, 1)
@@ -19,11 +12,22 @@ local function bootstrap(name)
   for i = 1, #plugins do
     local p = plugins[i]
     if p.url:find(name, 1, true) then
-      local path_entry = p.plugin_dir .. sep .. "plugin" .. sep .. "?.lua"
-      if not package.path:find(path_entry, 1, true) then
-        package.path = package.path .. ";" .. path_entry
+      local base = p.plugin_dir .. sep .. "plugin" .. sep
+      local entries = {
+        base .. "?.lua",
+        base .. "?" .. sep .. "init.lua",
+      }
+
+      for j = 1, #entries do
+        local path_entry = entries[j]
+        if not package.path:find(path_entry, 1, true) then
+          package.path = package.path .. ";" .. path_entry
+        end
       end
-      return
+
+      wz.GLOBAL = wz.GLOBAL or {}
+      wz.GLOBAL.__lantern_plugin_dir = p.plugin_dir
+      return p
     end
   end
 end
