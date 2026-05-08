@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [1.1.0](https://github.com/sravioli/lantern.wz/compare/cb4cadf162646e5c70338ccdded7d2da8356ff43..1.1.0) - 2026-05-08
+#### Features
+- (**format**) use ribbon for formatted output - ([cb4cadf](https://github.com/sravioli/lantern.wz/commit/cb4cadf162646e5c70338ccdded7d2da8356ff43)) - sravioli
+#### Documentation
+- (**readme**) document ribbon dependency - ([a00a3c8](https://github.com/sravioli/lantern.wz/commit/a00a3c8bd6030541e6dfb089abfea51818c345cf)) - sravioli
+
+- - -
+
 ## [1.0.0](https://github.com/sravioli/lantern.wz/compare/01267f41055872719889b0731b252e62b56722b0..1.0.0) - 2026-05-08
 #### Features
 - (**flames**) add appearance wicks - ([c2220e9](https://github.com/sravioli/lantern.wz/commit/c2220e9da01953116fa015462aec41ba9f4d5e3d)) - sravioli
