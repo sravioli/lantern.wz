@@ -12,6 +12,7 @@ local cache = deps.memo.cache.namespace "lantern.flame_dirs"
 local logger = deps.log.new "Lantern"
 local warp_path = deps.warp.path
 local tbl = deps.warp.table
+local FLAME_DIR_CACHE_VERSION = "v2"
 
 ---@class Lantern.Choice
 ---@field id string
@@ -171,6 +172,26 @@ local function read_dir(path)
   return {}
 end
 
+---@param resolved string
+---@return string[]
+local function discover_flame_specs(resolved)
+  local paths = read_dir(resolved)
+  table.sort(paths)
+
+  local discovered = {}
+  for i = 1, #paths do
+    if paths[i]:match "%.lua$" then
+      discovered[#discovered + 1] = path_to_module(paths[i])
+    end
+  end
+
+  if #discovered == 0 then
+    log("warn", "no flame modules discovered in %s", resolved)
+  end
+
+  return discovered
+end
+
 ---@param dir Lantern.FlameDir
 ---@return string[]
 local function flame_specs_from_dir(dir)
@@ -179,20 +200,20 @@ local function flame_specs_from_dir(dir)
     return {}
   end
 
-  local cache_key = normalize_path(resolved)
-  local specs = cache.compute(cache_key, function()
-    local paths = read_dir(resolved)
-    table.sort(paths)
+  local cache_key = FLAME_DIR_CACHE_VERSION .. ":" .. normalize_path(resolved)
+  local specs = cache.get(cache_key)
+  if type(specs) == "table" and #specs > 0 then
+    return tbl.copy(specs)
+  end
 
-    local discovered = {}
-    for i = 1, #paths do
-      if paths[i]:match "%.lua$" then
-        discovered[#discovered + 1] = path_to_module(paths[i])
-      end
-    end
+  if specs ~= nil then
+    cache.delete(cache_key)
+  end
 
-    return discovered
-  end)
+  specs = discover_flame_specs(resolved)
+  if #specs > 0 then
+    cache.set(cache_key, specs, { force = true })
+  end
 
   return tbl.copy(specs)
 end

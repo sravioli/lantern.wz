@@ -223,6 +223,22 @@ local mock_cache = {}
 function mock_cache.namespace(name)
   local prefix = name .. ":"
   return {
+    get = function(key)
+      M.GLOBAL.__memo_cache = M.GLOBAL.__memo_cache or {}
+      return M.GLOBAL.__memo_cache[prefix .. tostring(key)]
+    end,
+    set = function(key, value, opts)
+      M.GLOBAL.__memo_cache = M.GLOBAL.__memo_cache or {}
+      local cache_key = prefix .. tostring(key)
+      if M.GLOBAL.__memo_cache[cache_key] == nil or opts and opts.force then
+        M.GLOBAL.__memo_cache[cache_key] = value
+      end
+      return M.GLOBAL.__memo_cache[cache_key]
+    end,
+    delete = function(key)
+      M.GLOBAL.__memo_cache = M.GLOBAL.__memo_cache or {}
+      M.GLOBAL.__memo_cache[prefix .. tostring(key)] = nil
+    end,
     compute = function(key, fn, ...)
       M.GLOBAL.__memo_cache = M.GLOBAL.__memo_cache or {}
       local cache_key = prefix .. tostring(key)

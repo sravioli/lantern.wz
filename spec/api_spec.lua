@@ -101,6 +101,24 @@ describe("lantern api", function()
     assert.is_true(wick._choices.beta ~= nil)
   end)
 
+  it("retries flame directory discovery after empty cached scans", function()
+    local custom_dir = "C:\\wezterm\\dynamic_flames"
+    wezterm.GLOBAL.__memo_cache = {
+      ["lantern.flame_dirs:C:/wezterm/dynamic_flames"] = {},
+    }
+
+    local lantern = require "lantern.api"
+    local empty = lantern.flames.from_dir(custom_dir)
+    wezterm._set_read_dir(custom_dir, {
+      "C:\\wezterm\\dynamic_flames\\alpha.lua",
+    })
+    local specs = lantern.flames.from_dir(custom_dir)
+
+    assert.equal(0, #empty)
+    assert.equal("dynamic_flames.alpha", specs[1])
+    assert.equal(2, wezterm._read_dir_calls["C:/wezterm/dynamic_flames"])
+  end)
+
   it("opens an InputSelector and applies the selected flame", function()
     local lantern = require "lantern.api"
     lantern.add_wick("custom", {
