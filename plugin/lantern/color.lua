@@ -1,6 +1,7 @@
 ---@module "lantern.color"
 
 local config = require "lantern.config"
+local ribbon = require("lantern.deps").ribbon
 
 local M = {}
 
@@ -9,15 +10,6 @@ local function apply_text_style(style)
     or (style.italic and "Italic")
     or (style.strikethrough and "Strikethrough")
     or (style.underline ~= nil and style.underline ~= "None" and style.underline)
-end
-
-local function tab_segment(parts, background, foreground, text, attribute)
-  parts[#parts + 1] = { Background = { Color = background } }
-  parts[#parts + 1] = { Foreground = { Color = foreground } }
-  if attribute then
-    parts[#parts + 1] = { Attribute = attribute }
-  end
-  parts[#parts + 1] = { Text = text }
 end
 
 ---Set tab button style in configuration from a Lantern colorscheme.
@@ -36,13 +28,13 @@ function M.set_tab_button(cfg, scheme)
     local state = states[i]
     local style = scheme.tab_bar[state]
     local attr = apply_text_style(style)
-    local parts = {}
+    local tab = ribbon:new "LanternTabButton"
 
-    tab_segment(parts, style.bg_color, scheme.tab_bar.background, right, attr)
-    tab_segment(parts, style.bg_color, style.fg_color, " + ", attr)
-    tab_segment(parts, style.bg_color, scheme.tab_bar.background, left, attr)
+    tab:append(style.bg_color, scheme.tab_bar.background, right, attr)
+    tab:append(style.bg_color, style.fg_color, " + ", attr)
+    tab:append(style.bg_color, scheme.tab_bar.background, left, attr)
 
-    cfg.tab_bar_style[state] = wezterm.format and wezterm.format(parts) or " + "
+    cfg.tab_bar_style[state] = tab:format()
   end
 end
 

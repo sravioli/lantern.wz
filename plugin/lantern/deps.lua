@@ -15,6 +15,7 @@ end
 
 M.log = require_plugin "https://github.com/sravioli/log.wz"
 M.memo = require_plugin "https://github.com/sravioli/memo.wz"
+M.ribbon = require_plugin "https://github.com/sravioli/ribbon.wz"
 M.warp = require_plugin "https://github.com/sravioli/warp.wz"
 
 return M

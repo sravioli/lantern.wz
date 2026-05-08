@@ -4,6 +4,7 @@
 local M = {}
 
 local wezterm = require "wezterm"
+local ribbon = require("lantern.deps").ribbon
 local nf = wezterm.nerdfonts or {}
 
 local choices = {
@@ -14,11 +15,7 @@ local choices = {
 }
 
 local function segment(bg, fg, text)
-  return wezterm.format {
-    { Background = { Color = bg } },
-    { Foreground = { Color = fg } },
-    { Text = text },
-  }
+  return ribbon:new("TabBarStyle"):append(bg, fg, text):format()
 end
 
 local function powerline_style()

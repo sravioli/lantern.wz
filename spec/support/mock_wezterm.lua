@@ -342,6 +342,49 @@ local mock_memo = {
   },
 }
 
+local mock_ribbon = {}
+local MockRibbon = {}
+MockRibbon.__index = MockRibbon
+
+local function new_ribbon(name, atomic)
+  return setmetatable({
+    name = "Ribbon" .. (name and " > " .. name or ""),
+    atomic = atomic,
+    parts = {},
+  }, MockRibbon)
+end
+
+function mock_ribbon.new(self_or_name, name_or_atomic, atomic)
+  if self_or_name == mock_ribbon then
+    return new_ribbon(name_or_atomic, atomic)
+  end
+
+  return new_ribbon(self_or_name, name_or_atomic)
+end
+
+function mock_ribbon.setup()
+  return {}
+end
+
+function MockRibbon:append(background, foreground, text, attributes)
+  self.parts[#self.parts + 1] = { Background = { Color = background or "none" } }
+  self.parts[#self.parts + 1] = { Foreground = { Color = foreground or "none" } }
+
+  if attributes then
+    local attr_list = type(attributes) == "table" and attributes or { attributes }
+    for i = 1, #attr_list do
+      self.parts[#self.parts + 1] = { Attribute = attr_list[i] }
+    end
+  end
+
+  self.parts[#self.parts + 1] = { Text = text or "" }
+  return self
+end
+
+function MockRibbon:format()
+  return M.format(self.parts)
+end
+
 local mock_warp = {
   filesystem = {
     platform = function()
@@ -384,6 +427,9 @@ M.plugin = {
     end
     if url:find("memo.wz", 1, true) then
       return mock_memo
+    end
+    if url:find("ribbon.wz", 1, true) then
+      return mock_ribbon
     end
     if url:find("warp.wz", 1, true) then
       return mock_warp
