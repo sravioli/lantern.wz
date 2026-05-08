@@ -209,6 +209,31 @@ describe("lantern api", function()
     remove_file(legacy_path)
   end)
 
+  it("clears stale persisted wicks that have no module", function()
+    local state_path = tmp_path "lantern-state-stale.json"
+    local legacy_path = tmp_path "lantern-legacy-stale-empty.json"
+    remove_file(state_path)
+    remove_file(legacy_path)
+
+    local fh = assert(io.open(state_path, "w"))
+    fh:write '{"custom":{"id":"a","wick":"custom"}}'
+    fh:close()
+
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = {
+        path = state_path,
+        legacy_path = legacy_path,
+      },
+    }
+
+    lantern.rekindle()
+
+    assert.is_nil(lantern.state.get "custom")
+    remove_file(state_path)
+    remove_file(legacy_path)
+  end)
+
   it("migrates legacy picker module paths", function()
     local state_path = tmp_path "lantern-state-migrated.json"
     local legacy_path = tmp_path "picker-state-legacy.json"

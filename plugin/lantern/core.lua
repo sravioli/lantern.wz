@@ -421,6 +421,7 @@ function M.rekindle(cfg)
   for wick_name, entry in pairs(state.all()) do
     if type(entry) == "table" and entry.id then
       local ok = false
+      local module_err = nil
 
       if entry.module then
         local require_ok, flame = pcall(require, entry.module)
@@ -429,6 +430,8 @@ function M.rekindle(cfg)
             choice = { id = entry.id, label = entry.label },
           })
           ok = true
+        else
+          module_err = flame
         end
       end
 
@@ -436,8 +439,17 @@ function M.rekindle(cfg)
         local wick = M.get_wick(entry.wick or wick_name)
         if wick then
           wick:select(restored, { choice = { id = entry.id, label = entry.label } })
+        elseif entry.module then
+          log(
+            "warn",
+            "unable to rekindle wick %s from module %s: %s",
+            wick_name,
+            tostring(entry.module),
+            tostring(module_err)
+          )
         else
-          log("warn", "unable to rekindle wick %s", wick_name)
+          log("warn", "clearing stale wick %s; no module recorded", wick_name)
+          state.clear(wick_name)
         end
       end
     end
