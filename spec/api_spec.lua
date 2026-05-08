@@ -204,7 +204,7 @@ describe("lantern api", function()
 
   it("selects the preferred GPU", function()
     local lantern = require "lantern.api"
-    local gpu = lantern.gpu().pick_best()
+    local gpu = lantern.gpu().best()
 
     assert.equal("Discrete", gpu.name)
   end)

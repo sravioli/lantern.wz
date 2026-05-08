@@ -92,7 +92,7 @@ end
 
 ---Automatically choose the best available GPU.
 ---@return GpuInfo|nil
-M.pick_best = function()
+M.best = function()
   local preferred_order = { "DiscreteGpu", "IntegratedGpu", "Other", "Cpu" }
   local selected_table = nil
 
@@ -118,5 +118,7 @@ M.pick_best = function()
 
   return gpu_choice
 end
+
+M.pick_best = M.best
 
 return M
