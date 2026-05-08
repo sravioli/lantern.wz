@@ -11,7 +11,8 @@ Lantern exposes selection actions as named **wicks**. Each wick is backed by
 one or more **flames** that provide choices with `glow()` and apply selections
 with `ignite(config, ctx)`.
 
-- Built-in wicks for colorschemes, fonts, font sizes, line height, and GPUs
+- Built-in wicks for colorschemes, fonts, font sizing, GPU selection, window
+  appearance, cursor style, ligatures, and tab bar style
 - User-defined wicks backed by inline flames, module flames, or flame folders
 - Persistent selections restored during startup with `lantern.rekindle(config)`
 - Safe reset handling for choices named `reset`
@@ -89,6 +90,12 @@ return config
 | `font-sizes` | `lantern.light.font_size()` | Pick a font size from 8pt through 30pt, plus reset. |
 | `font-leadings` | `lantern.light.font_leading()` | Pick a line-height value or reset to default. |
 | `gpus` | `lantern.light.gpu()` | Pick a GPU adapter from `wezterm.gui.enumerate_gpus()`. |
+| `window-opacity` | `lantern.light.window_opacity()` | Pick a window background opacity or reset to the base config. |
+| `window-padding` | `lantern.light.window_padding()` | Pick compact, normal, spacious, or wide window padding. |
+| `cursor-style` | `lantern.light.cursor_style()` | Pick a steady or blinking cursor shape. |
+| `inactive-pane-opacity` | `lantern.light.inactive_pane_opacity()` | Pick inactive pane dimming through `inactive_pane_hsb`. |
+| `font-ligatures` | `lantern.light.font_ligatures()` | Pick standard, discretionary, or disabled HarfBuzz ligatures. |
+| `tab-bar-style` | `lantern.light.tab_bar_style()` | Pick native, retro, or bundled powerline tab styling. |
 
 Built-in flame modules live under `plugin/lantern/flames`.
 
@@ -103,6 +110,12 @@ Built-in flame modules live under `plugin/lantern/flames`.
 | `lantern.light.font_size()` | Return a WezTerm action for the built-in font-size wick. |
 | `lantern.light.font_leading()` | Return a WezTerm action for the built-in line-height wick. |
 | `lantern.light.gpu()` | Return a WezTerm action for the built-in GPU wick. |
+| `lantern.light.window_opacity()` | Return a WezTerm action for the built-in window-opacity wick. |
+| `lantern.light.window_padding()` | Return a WezTerm action for the built-in window-padding wick. |
+| `lantern.light.cursor_style()` | Return a WezTerm action for the built-in cursor-style wick. |
+| `lantern.light.inactive_pane_opacity()` | Return a WezTerm action for the built-in inactive-pane-opacity wick. |
+| `lantern.light.font_ligatures()` | Return a WezTerm action for the built-in font-ligatures wick. |
+| `lantern.light.tab_bar_style()` | Return a WezTerm action for the built-in tab-bar-style wick. |
 | `lantern.light(name)` | Return a WezTerm action for a custom wick. |
 | `lantern.add_wick(name, spec)` | Register a custom wick. |
 | `lantern.wick(name)` | Return a registered wick. |
@@ -169,26 +182,27 @@ Legacy names `get()` and `pick(config, ctx)` are also accepted.
 ### Inline flames
 
 ```lua
-lantern.add_wick("window-opacity", {
-  title = "Lantern: window opacity",
+lantern.add_wick("scrollback-size", {
+  title = "Lantern: scrollback size",
   flames = {
     {
       glow = function()
         return {
-          { id = "0.85", label = "Dim" },
-          { id = "1.00", label = "Solid" },
+          { id = "3500", label = "Default" },
+          { id = "10000", label = "Long" },
+          { id = "50000", label = "Archive" },
         }
       end,
 
       ignite = function(config, ctx)
-        config.window_background_opacity = tonumber(ctx.choice.id)
+        config.scrollback_lines = tonumber(ctx.choice.id)
       end,
     },
   },
 })
 
 -- Bind with:
--- lantern.light "window-opacity"
+-- lantern.light "scrollback-size"
 ```
 
 ### Module flames
