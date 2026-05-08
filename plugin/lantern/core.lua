@@ -274,7 +274,10 @@ end
 function M.new_wick(opts)
   local cfg = config.get()
   local pick_opt = function(value, default)
-    return value ~= nil and value or default
+    if value ~= nil then
+      return value
+    end
+    return default
   end
 
   local self = setmetatable({}, Wick)
