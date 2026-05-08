@@ -88,6 +88,12 @@ describe("lantern usage scenarios", function()
     assert.equal("lantern:light:font-sizes", lantern.light.font_size().name)
     assert.equal("lantern:light:font-leadings", lantern.light.font_leading().name)
     assert.equal("lantern:light:gpus", lantern.light.gpu().name)
+    assert.equal("lantern:light:window-opacity", lantern.light.window_opacity().name)
+    assert.equal("lantern:light:window-padding", lantern.light.window_padding().name)
+    assert.equal("lantern:light:cursor-style", lantern.light.cursor_style().name)
+    assert.equal("lantern:light:inactive-pane-opacity", lantern.light.inactive_pane_opacity().name)
+    assert.equal("lantern:light:font-ligatures", lantern.light.font_ligatures().name)
+    assert.equal("lantern:light:tab-bar-style", lantern.light.tab_bar_style().name)
   end)
 
   it("applies a built-in colorscheme through the selector callback", function()
@@ -218,6 +224,63 @@ describe("lantern usage scenarios", function()
 
     assert.equal("Lantern: GPU", selector.args.title)
     assert.equal("Discrete", get_overrides().webgpu_preferred_adapter.name)
+  end)
+
+  it("applies built-in window appearance flames through selector callbacks", function()
+    set_builtin_flames("window-opacity", { "window-opacity.lua" })
+    set_builtin_flames("window-padding", { "window-padding.lua" })
+    set_builtin_flames("inactive-pane-opacity", { "inactive-pane-opacity.lua" })
+    set_builtin_flames("tab-bar-style", { "tab-bar-style.lua" })
+
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { enabled = false },
+    }
+
+    local opacity_window, get_opacity_overrides = new_window()
+    local opacity_selector = open_selector(lantern.light.window_opacity(), opacity_window)
+    select_choice(opacity_selector, opacity_window, "0.85")
+    assert.equal("Lantern: window opacity", opacity_selector.args.title)
+    assert.equal(0.85, get_opacity_overrides().window_background_opacity)
+
+    local padding_window, get_padding_overrides = new_window()
+    local padding_selector = open_selector(lantern.light.window_padding(), padding_window)
+    select_choice(padding_selector, padding_window, "compact")
+    assert.equal(2, get_padding_overrides().window_padding.left)
+    assert.equal(0, get_padding_overrides().window_padding.top)
+
+    local pane_window, get_pane_overrides = new_window()
+    local pane_selector = open_selector(lantern.light.inactive_pane_opacity(), pane_window)
+    select_choice(pane_selector, pane_window, "dim")
+    assert.equal(0.85, get_pane_overrides().inactive_pane_hsb.saturation)
+    assert.equal(0.75, get_pane_overrides().inactive_pane_hsb.brightness)
+
+    local tab_window, get_tab_overrides = new_window()
+    local tab_selector = open_selector(lantern.light.tab_bar_style(), tab_window)
+    select_choice(tab_selector, tab_window, "powerline")
+    assert.equal(false, get_tab_overrides().use_fancy_tab_bar)
+    assert.equal(" <", get_tab_overrides().tab_bar_style.active_tab_left)
+    assert.equal("> ", get_tab_overrides().tab_bar_style.active_tab_right)
+  end)
+
+  it("applies built-in cursor and font rendering flames", function()
+    set_builtin_flames("cursor-style", { "cursor-style.lua" })
+    set_builtin_flames("font-ligatures", { "font-ligatures.lua" })
+
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { enabled = false },
+    }
+
+    local cursor_window, get_cursor_overrides = new_window()
+    local cursor_selector = open_selector(lantern.light.cursor_style(), cursor_window)
+    select_choice(cursor_selector, cursor_window, "blinking-bar")
+    assert.equal("BlinkingBar", get_cursor_overrides().default_cursor_style)
+
+    local ligature_window, get_ligature_overrides = new_window()
+    local ligature_selector = open_selector(lantern.light.font_ligatures(), ligature_window)
+    select_choice(ligature_selector, ligature_window, "off")
+    assert.same({ "calt=0", "clig=0", "liga=0" }, get_ligature_overrides().harfbuzz_features)
   end)
 
   it("loads user-defined flame directories from the light event", function()

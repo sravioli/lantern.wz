@@ -17,6 +17,12 @@ local function register_builtins()
   core.add_wick("font-sizes", require "lantern.wicks.font_size")
   core.add_wick("font-leadings", require "lantern.wicks.font_leading")
   core.add_wick("gpus", require "lantern.wicks.gpu")
+  core.add_wick("window-opacity", require "lantern.wicks.window_opacity")
+  core.add_wick("window-padding", require "lantern.wicks.window_padding")
+  core.add_wick("cursor-style", require "lantern.wicks.cursor_style")
+  core.add_wick("inactive-pane-opacity", require "lantern.wicks.inactive_pane_opacity")
+  core.add_wick("font-ligatures", require "lantern.wicks.font_ligatures")
+  core.add_wick("tab-bar-style", require "lantern.wicks.tab_bar_style")
 end
 
 register_builtins()
@@ -53,6 +59,36 @@ end
 ---@return table
 function light.gpu()
   return core.light "gpus"
+end
+
+---@return table
+function light.window_opacity()
+  return core.light "window-opacity"
+end
+
+---@return table
+function light.window_padding()
+  return core.light "window-padding"
+end
+
+---@return table
+function light.cursor_style()
+  return core.light "cursor-style"
+end
+
+---@return table
+function light.inactive_pane_opacity()
+  return core.light "inactive-pane-opacity"
+end
+
+---@return table
+function light.font_ligatures()
+  return core.light "font-ligatures"
+end
+
+---@return table
+function light.tab_bar_style()
+  return core.light "tab-bar-style"
 end
 
 M.light = setmetatable(light, light)
