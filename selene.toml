@@ -1,4 +1,4 @@
-std = "lua51"
+std = "selene_defs"
 
 [lints]
 shadowing = "allow"

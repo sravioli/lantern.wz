@@ -14,7 +14,7 @@ end
 
 local function tmp_path(name)
   local base = os.getenv "TEMP" or os.getenv "TMP" or "."
-  return base .. package.config:sub(1, 1) .. name
+  return base .. "/" .. name
 end
 
 local function remove_file(path)

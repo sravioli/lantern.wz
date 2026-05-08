@@ -71,11 +71,6 @@ local function log(level, message, ...)
   end
 end
 
-local function path_sep()
-  -- selene: allow(incorrect_standard_library_use)
-  return package.config:sub(1, 1)
-end
-
 local function normalize_path(path)
   return path:gsub("\\", "/")
 end
