@@ -1,6 +1,6 @@
 # lantern.wz
 
-[![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/michaelbrusegard/awesome-wezterm)
+<!-- [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/michaelbrusegard/awesome-wezterm) -->
 [![Tests](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/tests.yaml?label=Tests&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=tests)
 [![Lint](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/lint.yaml?label=Lint&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=lint)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/sravioli/lantern.wz?label=Coverage&logo=coveralls)](https://coveralls.io/github/sravioli/lantern.wz)
@@ -44,6 +44,7 @@ Lantern loads these plugin dependencies automatically:
 - [`ribbon.wz`](https://github.com/sravioli/ribbon.wz) for formatted text segments
 - [`warp.wz`](https://github.com/sravioli/warp.wz) for path, table, and string helpers
 
+<!--
 ### Type annotations
 
 Lantern ships LuaCATS annotations. After installing
@@ -54,6 +55,7 @@ to get completion and type checking:
 ---@type Lantern
 local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
 ```
+-->
 
 ## Quick start
 
