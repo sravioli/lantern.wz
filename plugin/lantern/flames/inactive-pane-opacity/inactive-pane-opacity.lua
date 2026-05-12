@@ -3,6 +3,8 @@
 ---@class Lantern.Flame
 local M = {}
 
+local tbl = require("lantern.deps").warp.table
+
 local choices = {
   {
     id = "off",
@@ -32,18 +34,6 @@ for i = 1, #choices do
   values[choices[i].id] = choices[i].value
 end
 
-local function copy(value)
-  if type(value) ~= "table" then
-    return value
-  end
-
-  local result = {}
-  for key, item in pairs(value) do
-    result[key] = item
-  end
-  return result
-end
-
 M.glow = function()
   return choices
 end
@@ -54,7 +44,7 @@ M.ignite = function(cfg, ctx)
     return
   end
 
-  cfg.inactive_pane_hsb = copy(values[ctx.choice.id])
+  cfg.inactive_pane_hsb = tbl.copy(values[ctx.choice.id])
 end
 
 return M

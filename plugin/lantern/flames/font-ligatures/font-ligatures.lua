@@ -3,6 +3,8 @@
 ---@class Lantern.Flame
 local M = {}
 
+local tbl = require("lantern.deps").warp.table
+
 local choices = {
   { id = "standard", label = "Standard", value = { "calt", "clig", "liga" } },
   { id = "discretionary", label = "Discretionary", value = { "calt", "clig", "liga", "dlig" } },
@@ -15,18 +17,6 @@ for i = 1, #choices do
   values[choices[i].id] = choices[i].value
 end
 
-local function copy(value)
-  if type(value) ~= "table" then
-    return value
-  end
-
-  local result = {}
-  for key, item in pairs(value) do
-    result[key] = item
-  end
-  return result
-end
-
 M.glow = function()
   return choices
 end
@@ -37,7 +27,7 @@ M.ignite = function(cfg, ctx)
     return
   end
 
-  cfg.harfbuzz_features = copy(values[ctx.choice.id])
+  cfg.harfbuzz_features = tbl.copy(values[ctx.choice.id])
 end
 
 return M

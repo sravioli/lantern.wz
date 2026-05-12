@@ -10,6 +10,8 @@ local wezterm = require "wezterm"
 local tunpack = unpack or table.unpack
 local cache = deps.memo.cache.namespace "lantern.flame_dirs"
 local logger = deps.log.new "Lantern"
+local list = deps.warp.list
+local str = deps.warp.string
 local warp_path = deps.warp.path
 local tbl = deps.warp.table
 local FLAME_DIR_CACHE_VERSION = "v4"
@@ -77,26 +79,18 @@ local function log(level, message, ...)
   end
 end
 
-local function normalize_path(value)
-  return warp_path.normalize(value)
-end
-
-local function starts_with(value, prefix)
-  return value:sub(1, #prefix) == prefix
-end
-
 local function path_to_module(path)
-  local normalized = normalize_path(path):gsub("%.lua$", "")
-  local config_dir = wezterm.config_dir and normalize_path(wezterm.config_dir)
-  local plugin_dir = meta.plugin_dir() and normalize_path(meta.plugin_dir())
+  local normalized = warp_path.normalize(path):gsub("%.lua$", "")
+  local config_dir = wezterm.config_dir and warp_path.normalize(wezterm.config_dir)
+  local plugin_dir = meta.plugin_dir() and warp_path.normalize(meta.plugin_dir())
 
-  if config_dir and starts_with(normalized, config_dir .. "/") then
+  if config_dir and str.starts_with(normalized, config_dir .. "/") then
     return normalized:sub(#config_dir + 2):gsub("/", ".")
   end
 
   if plugin_dir then
     local plugin_prefix = plugin_dir .. "/plugin/"
-    if starts_with(normalized, plugin_prefix) then
+    if str.starts_with(normalized, plugin_prefix) then
       return normalized:sub(#plugin_prefix + 1):gsub("/", ".")
     end
   end
@@ -185,7 +179,7 @@ local function glob_lua_files(path)
     return {}
   end
 
-  local pattern = normalize_path(path):gsub("/+$", "") .. "/*.lua"
+  local pattern = warp_path.normalize(path):gsub("/+$", "") .. "/*.lua"
   local result = wezterm.glob(pattern)
   if type(result) == "table" then
     return result
@@ -238,7 +232,7 @@ local function flame_specs_from_dir(dir)
     return {}
   end
 
-  local cache_key = FLAME_DIR_CACHE_VERSION .. ":" .. normalize_path(resolved)
+  local cache_key = FLAME_DIR_CACHE_VERSION .. ":" .. warp_path.normalize(resolved)
   local specs = cache.get(cache_key)
   if type(specs) == "table" and #specs > 0 then
     return tbl.copy(specs)
@@ -265,10 +259,7 @@ local function flame_specs_from_dirs(dirs)
   end
 
   for i = 1, #dirs do
-    local dir_specs = flame_specs_from_dir(dirs[i])
-    for j = 1, #dir_specs do
-      specs[#specs + 1] = dir_specs[j]
-    end
+    list.extend(specs, flame_specs_from_dir(dirs[i]))
   end
 
   return specs

@@ -391,6 +391,14 @@ local mock_warp = {
       return { os = "windows", is_win = true, is_linux = false, is_mac = false }
     end,
   },
+  list = {
+    extend = function(dst, src)
+      for i = 1, #src do
+        dst[#dst + 1] = src[i]
+      end
+      return dst
+    end,
+  },
   path = {
     separator = "\\",
     concat = function(...)
@@ -399,6 +407,9 @@ local mock_warp = {
     normalize = normalize_path,
   },
   string = {
+    starts_with = function(value, prefix)
+      return value:sub(1, #prefix) == prefix
+    end,
     width = function(text)
       return M.column_width(text)
     end,
