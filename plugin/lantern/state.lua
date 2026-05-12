@@ -6,7 +6,6 @@ local wezterm = require "wezterm"
 
 local logger = deps.log.new "Lantern.State"
 local state = deps.memo.state
-local tbl = deps.warp.table
 
 local M = {}
 
@@ -14,6 +13,57 @@ local active_store
 local active_store_path
 local legacy_store
 local legacy_store_path
+
+---@param value any
+---@param key string
+---@return any
+local function field(value, key)
+  local kind = type(value)
+  if kind ~= "table" and kind ~= "userdata" then
+    return nil
+  end
+
+  local ok, result = pcall(function()
+    return value[key]
+  end)
+
+  if ok then
+    return result
+  end
+
+  return nil
+end
+
+---@param entry any
+---@return table|nil
+local function normalize_entry(entry)
+  local id = field(entry, "id")
+  if id == nil then
+    return nil
+  end
+
+  local normalized = { id = id }
+  local keys = { "label", "module", "wick" }
+  for i = 1, #keys do
+    local key = keys[i]
+    local value = field(entry, key)
+    if value ~= nil then
+      normalized[key] = value
+    end
+  end
+
+  return normalized
+end
+
+---@param data table
+---@return table
+local function normalize_state(data)
+  local normalized = {}
+  for wick_name, entry in pairs(data) do
+    normalized[wick_name] = normalize_entry(entry) or entry
+  end
+  return normalized
+end
 
 ---@return string
 local function path_separator()
@@ -121,11 +171,11 @@ local function get_legacy_store()
 end
 
 local function migrate_legacy_entry(entry)
-  if type(entry) ~= "table" then
+  local migrated = normalize_entry(entry)
+  if not migrated then
     return entry
   end
 
-  local migrated = tbl.copy(entry)
   if type(migrated.module) == "string" then
     migrated.module = migrated.module:gsub("^picker%.assets%.", "lantern.flames.")
   end
@@ -215,7 +265,7 @@ end
 ---@param opts? { reload: boolean }
 ---@return table
 function M.all(opts)
-  return ensure_loaded(opts):restore()
+  return normalize_state(ensure_loaded(opts):restore())
 end
 
 ---@return table
