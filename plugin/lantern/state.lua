@@ -5,6 +5,7 @@ local deps = require "lantern.deps"
 local wezterm = require "wezterm"
 
 local logger = deps.log.new "Lantern.State"
+local path = deps.warp.path
 local state = deps.memo.state
 
 local M = {}
@@ -65,57 +66,21 @@ local function normalize_state(data)
   return normalized
 end
 
----@return string
-local function path_separator()
-  local package_config = rawget(package, "config")
-  if type(package_config) == "string" then
-    local sep = package_config:sub(1, 1)
-    if sep ~= "" then
-      return sep
-    end
-  end
-
-  if wezterm.target_triple and wezterm.target_triple:find "windows" then
-    return "\\"
-  end
-
-  return "/"
-end
-
----@param ... string
----@return string
-local function join_path(...)
-  local sep = path_separator()
-  local parts = { ... }
-  local out = parts[1] or ""
-
-  for i = 2, #parts do
-    local part = parts[i]
-    if out:match "[/\\]$" then
-      out = out .. part
-    else
-      out = out .. sep .. part
-    end
-  end
-
-  return out
-end
-
 local function state_dir()
   local dir
-  if path_separator() == "\\" then
+  if path.separator == "\\" then
     dir = os.getenv "LOCALAPPDATA" or os.getenv "APPDATA"
     if dir then
-      dir = join_path(dir, "wezterm")
+      dir = path.concat(dir, "wezterm")
     end
   else
     local xdg = os.getenv "XDG_STATE_HOME"
     if xdg then
-      dir = join_path(xdg, "wezterm")
+      dir = path.concat(xdg, "wezterm")
     else
       local home = os.getenv "HOME"
       if home then
-        dir = join_path(home, ".local", "state", "wezterm")
+        dir = path.concat(home, ".local", "state", "wezterm")
       end
     end
   end
@@ -126,7 +91,7 @@ end
 ---@param filename string
 ---@return string
 local function default_state_path(filename)
-  return join_path(state_dir(), filename)
+  return path.concat(state_dir(), filename)
 end
 
 local function active_path()
