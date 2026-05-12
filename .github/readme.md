@@ -329,6 +329,20 @@ lantern.setup {
 `lantern.rekindle(config)` reads saved choices and applies their flames to the
 given config table.
 
+Wicks can declare restore dependencies when one persisted choice must be
+applied after another. This is useful for custom wicks that derive their values
+from another wick's config changes:
+
+```lua
+lantern.add_wick("profile-tab-style", {
+  restore_after = "profiles",
+  flames = { "my_lantern_flames.profile_tab_style" },
+})
+```
+
+`restore_after` accepts a wick name or a list of wick names. `restore_priority`
+can also be set to order unrelated wicks; lower values run first.
+
 `reset_behavior = "clear"` removes a wick's saved value when you pick a flame
 with `id = "reset"` or label `"Reset"`. Use `"persist"` if reset choices should
 be saved like any other choice.

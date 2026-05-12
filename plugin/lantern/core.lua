@@ -48,6 +48,8 @@ local FLAME_DIR_CACHE_VERSION = "v4"
 ---@field description? string
 ---@field fuzzy_description? string
 ---@field persist? boolean
+---@field restore_after? string|string[]
+---@field restore_priority? number
 ---@field comp? fun(a: Lantern.Choice, b: Lantern.Choice): boolean
 ---@field format_choices? Lantern.FormatChoices
 ---@field format_description? Lantern.FormatDescription
@@ -134,6 +136,25 @@ end
 
 local function is_array(item)
   return type(item) == "table" and item[1] ~= nil
+end
+
+---@param value? string|string[]
+---@return string[]
+local function normalize_string_list(value)
+  if type(value) == "string" then
+    return { value }
+  end
+
+  local result = {}
+  if type(value) == "table" then
+    for i = 1, #value do
+      if type(value[i]) == "string" then
+        result[#result + 1] = value[i]
+      end
+    end
+  end
+
+  return result
 end
 
 local function flame_glow(flame, ctx)
@@ -279,6 +300,8 @@ function M.new_wick(opts)
   self.description = pick_opt(opts.description, cfg.defaults.description)
   self.fuzzy_description = pick_opt(opts.fuzzy_description, cfg.defaults.fuzzy_description)
   self.persist = pick_opt(opts.persist, cfg.persistence.enabled)
+  self.restore_after = normalize_string_list(opts.restore_after)
+  self.restore_priority = opts.restore_priority or 0
 
   self.comp = opts.comp or cfg.defaults.comp(self.sort_by)
   self.format_choices = opts.format_choices or cfg.defaults.format_choices
@@ -445,11 +468,91 @@ function M.light(name)
   return wick:light()
 end
 
+---@param entries table
+---@param wick_name string
+---@return Lantern.Wick|nil
+local function restore_wick(entries, wick_name)
+  local entry = entries[wick_name]
+  if type(entry) ~= "table" then
+    return nil
+  end
+
+  return M.get_wick(entry.wick or wick_name)
+end
+
+---@param entries table
+---@param wick_name string
+---@return number
+local function restore_priority(entries, wick_name)
+  local wick = restore_wick(entries, wick_name)
+  return wick and wick.restore_priority or 0
+end
+
+---@param entries table
+---@return string[]
+local function sorted_rekindle_wicks(entries)
+  local names = {}
+  local exists = {}
+
+  for wick_name, entry in pairs(entries) do
+    if type(entry) == "table" and entry.id then
+      names[#names + 1] = wick_name
+      exists[wick_name] = true
+    end
+  end
+
+  table.sort(names, function(a, b)
+    local a_priority = restore_priority(entries, a)
+    local b_priority = restore_priority(entries, b)
+    if a_priority ~= b_priority then
+      return a_priority < b_priority
+    end
+    return a < b
+  end)
+
+  local sorted = {}
+  local visiting = {}
+  local visited = {}
+
+  local function visit(wick_name)
+    if visited[wick_name] then
+      return
+    end
+
+    if visiting[wick_name] then
+      log("warn", "restore dependency cycle detected at wick %s", wick_name)
+      return
+    end
+
+    visiting[wick_name] = true
+
+    local wick = restore_wick(entries, wick_name)
+    local after = wick and wick.restore_after or {}
+    for i = 1, #after do
+      if exists[after[i]] then
+        visit(after[i])
+      end
+    end
+
+    visiting[wick_name] = nil
+    visited[wick_name] = true
+    sorted[#sorted + 1] = wick_name
+  end
+
+  for i = 1, #names do
+    visit(names[i])
+  end
+
+  return sorted
+end
+
 ---@param cfg? table
 ---@return table
 function M.rekindle(cfg)
   local restored = cfg or {}
-  for wick_name, entry in pairs(state.all()) do
+  local entries = state.reload()
+
+  local function rekindle_entry(wick_name, entry)
     if type(entry) == "table" and entry.id then
       local ok = false
       local module_err = nil
@@ -485,6 +588,11 @@ function M.rekindle(cfg)
       end
     end
   end
+
+  for _, wick_name in ipairs(sorted_rekindle_wicks(entries)) do
+    rekindle_entry(wick_name, entries[wick_name])
+  end
+
   return restored
 end
 

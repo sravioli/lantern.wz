@@ -248,6 +248,99 @@ describe("lantern api", function()
     remove_file(legacy_path)
   end)
 
+  it("reloads persisted state from disk during rekindle", function()
+    local state_path = tmp_path "lantern-state-reload.json"
+    local legacy_path = tmp_path "lantern-legacy-reload-empty.json"
+    remove_file(state_path)
+    remove_file(legacy_path)
+
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { path = state_path, legacy_path = legacy_path },
+    }
+
+    assert.same({}, lantern.state.all())
+
+    local fh = assert(io.open(state_path, "w"))
+    fh:write '{"custom":{"id":"fresh","module":"lantern.reload_flame","wick":"custom"}}'
+    fh:close()
+
+    package.loaded["lantern.reload_flame"] = {
+      ignite = function(cfg)
+        cfg.value = "fresh"
+      end,
+    }
+
+    local restored = lantern.rekindle()
+
+    assert.equal("fresh", restored.value)
+    remove_file(state_path)
+    remove_file(legacy_path)
+  end)
+
+  it("rekindles persisted wicks using restore_after metadata", function()
+    local state_path = tmp_path "lantern-state-order.json"
+    local legacy_path = tmp_path "lantern-legacy-order-empty.json"
+    remove_file(state_path)
+    remove_file(legacy_path)
+
+    local fh = assert(io.open(state_path, "w"))
+    fh:write(
+      '{"dependent":{"id":"tabs","module":"lantern.order_tabs","wick":"dependent"},'
+        .. '"base":{"id":"theme","module":"lantern.order_theme","wick":"base"}}'
+    )
+    fh:close()
+
+    package.loaded["lantern.order_theme"] = {
+      ignite = function(cfg)
+        cfg.order = cfg.order or {}
+        cfg.order[#cfg.order + 1] = "base"
+        cfg.color_scheme = "theme"
+      end,
+    }
+
+    package.loaded["lantern.order_tabs"] = {
+      ignite = function(cfg)
+        cfg.order = cfg.order or {}
+        cfg.order[#cfg.order + 1] = "dependent"
+        cfg.theme_seen_by_tabs = cfg.color_scheme
+      end,
+    }
+
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { path = state_path, legacy_path = legacy_path },
+    }
+    lantern.add_wick("base", {
+      flames = {
+        {
+          module_path = "lantern.order_theme",
+          glow = function()
+            return { id = "theme" }
+          end,
+        },
+      },
+    })
+    lantern.add_wick("dependent", {
+      restore_after = "base",
+      flames = {
+        {
+          module_path = "lantern.order_tabs",
+          glow = function()
+            return { id = "tabs" }
+          end,
+        },
+      },
+    })
+
+    local restored = lantern.rekindle()
+
+    assert.same({ "base", "dependent" }, restored.order)
+    assert.equal("theme", restored.theme_seen_by_tabs)
+    remove_file(state_path)
+    remove_file(legacy_path)
+  end)
+
   it("clears stale persisted wicks that have no module", function()
     local state_path = tmp_path "lantern-state-stale.json"
     local legacy_path = tmp_path "lantern-legacy-stale-empty.json"

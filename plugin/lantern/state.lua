@@ -106,20 +106,30 @@ local function migrate_legacy_state(legacy)
   return migrated
 end
 
-local function ensure_loaded()
+---@param opts? { reload: boolean }
+local function ensure_loaded(opts)
   local store = get_active_store()
+  if opts and opts.reload then
+    store:load()
+  end
+
   local data = store:restore()
 
   if next(data) ~= nil then
     return store
   end
 
-  local legacy = get_legacy_store():restore()
-  if next(legacy) == nil then
+  local legacy = get_legacy_store()
+  if opts and opts.reload then
+    legacy:load()
+  end
+
+  local legacy_data = legacy:restore()
+  if next(legacy_data) == nil then
     return store
   end
 
-  local migrated = migrate_legacy_state(legacy)
+  local migrated = migrate_legacy_state(legacy_data)
   for wick_name, entry in pairs(migrated) do
     store:set(wick_name, entry)
   end
@@ -167,9 +177,15 @@ function M.clear(wick_name)
   end
 end
 
+---@param opts? { reload: boolean }
 ---@return table
-function M.all()
-  return ensure_loaded():restore()
+function M.all(opts)
+  return ensure_loaded(opts):restore()
+end
+
+---@return table
+function M.reload()
+  return M.all { reload = true }
 end
 
 ---@return string
