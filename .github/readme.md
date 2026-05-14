@@ -183,6 +183,10 @@ lantern.setup {
 | `defaults.description` | string | `"Select a flame."` | Prompt text in exact mode. |
 | `defaults.fuzzy_description` | string | `"Search"` | Prompt text in fuzzy mode. |
 | `defaults.alphabet` | string | digits and letters | Input selector shortcut alphabet. |
+| `defaults.icons` | table | Nerd Font-backed icons | Icons and punctuation used by selector descriptions. |
+| `defaults.comp` | function | reset-first ID sort | Choice comparator factory. |
+| `defaults.format_choices` | function | passthrough formatter | Converts internal choices into `InputSelector` choices. |
+| `defaults.format_description` | function | icon + prompt formatter | Builds exact and fuzzy selector prompt text. |
 
 ### Custom tab button formatting
 
