@@ -40,7 +40,7 @@ local function fallback_set_tab_button(cfg, scheme)
   end
 end
 
----Set tab button style in configuration from a Lantern colorscheme.
+---Set the tab button style from a Lantern colorscheme.
 ---@param cfg table
 ---@param scheme table
 ---@param name? string
@@ -85,7 +85,7 @@ function M.apply_scheme(cfg, scheme, name)
   M.set_tab_button(cfg, scheme, name)
 end
 
----Load a built-in Lantern colorscheme flame and return its scheme table.
+---Load a built-in colorscheme flame and return its scheme table.
 ---@param name string
 ---@return table|nil
 function M.scheme(name)

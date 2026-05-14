@@ -96,14 +96,14 @@ M.light = setmetatable(light, light)
 ---@class Lantern.FlamesApi
 local flames = {}
 
----Return cached flame module paths from one directory.
+---Return cached flame module paths for one directory.
 ---@param dir Lantern.FlameDir
 ---@return string[]
 function flames.from_dir(dir)
   return core.flames_from_dir(dir)
 end
 
----Return cached flame module paths from multiple directories.
+---Return cached flame module paths for several directories.
 ---@param dirs Lantern.FlameDir[]
 ---@return string[]
 function flames.from_dirs(dirs)
@@ -122,7 +122,7 @@ function M.setup(opts)
   return config.setup(opts)
 end
 
----Register a user-defined wick.
+---Register a custom wick.
 ---@param name string
 ---@param spec Lantern.WickSpec|Lantern.Wick
 ---@return Lantern.Wick
@@ -130,7 +130,7 @@ function M.add_wick(name, spec)
   return core.add_wick(name, spec)
 end
 
----Return a registered wick by name.
+---Return the registered wick with this name.
 ---@param name string
 ---@return Lantern.Wick|nil
 function M.wick(name)

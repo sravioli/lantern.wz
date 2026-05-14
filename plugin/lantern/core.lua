@@ -587,17 +587,17 @@ function M.rekindle(cfg)
   return restored
 end
 
----Return cached flame module paths from one directory.
+---Return cached flame module paths for one directory.
 ---
----Pass a string for an absolute/custom directory, or a string array for a
----built-in Lantern flame directory under `plugin/lantern/flames`.
+---Pass a string for an absolute or custom directory, or a string array for a
+---built-in Lantern flame directory below `plugin/lantern/flames`.
 ---@param dir Lantern.FlameDir
 ---@return string[]
 function M.flames_from_dir(dir)
   return flame_specs_from_dir(dir)
 end
 
----Return cached flame module paths from multiple directories.
+---Return cached flame module paths for several directories.
 ---@param dirs Lantern.FlameDir[]
 ---@return string[]
 function M.flames_from_dirs(dirs)
