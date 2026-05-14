@@ -136,6 +136,38 @@ describe("lantern usage scenarios", function()
     remove_file(legacy_path)
   end)
 
+  it("lets users customize tab button formatting for colorscheme choices", function()
+    set_builtin_flames("colorschemes", { "kanagawa-wave.lua" })
+
+    local formatter_ctx = nil
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { enabled = false },
+      color = {
+        set_tab_button = function(cfg, scheme, ctx)
+          formatter_ctx = {
+            name = ctx.name,
+            foreground = scheme.foreground,
+          }
+          cfg.tab_bar_style = {
+            new_tab = "custom:" .. ctx.name,
+            new_tab_hover = "custom-hover:" .. ctx.name,
+          }
+        end,
+      },
+    }
+
+    local window, get_overrides = new_window()
+    local selector = open_selector(lantern.light.colorscheme(), window)
+    select_choice(selector, window, "kanagawa-wave")
+
+    local overrides = get_overrides()
+    assert.equal("custom:kanagawa-wave", overrides.tab_bar_style.new_tab)
+    assert.equal("custom-hover:kanagawa-wave", overrides.tab_bar_style.new_tab_hover)
+    assert.equal("kanagawa-wave", formatter_ctx.name)
+    assert.equal("#DCD7BA", formatter_ctx.foreground)
+  end)
+
   it("resets fonts to configured defaults and clears persisted font state", function()
     local state_path = tmp_path "lantern-font-reset-usage.json"
     local legacy_path = tmp_path "lantern-font-reset-legacy.json"

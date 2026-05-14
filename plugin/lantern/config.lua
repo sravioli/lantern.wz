@@ -21,6 +21,7 @@ local M = {}
 
 ---@class Lantern.ColorConfig
 ---@field opacity number
+---@field set_tab_button? fun(config: table, scheme: table, ctx: Lantern.ColorContext)
 
 ---@class Lantern.DefaultConfig
 ---@field title string

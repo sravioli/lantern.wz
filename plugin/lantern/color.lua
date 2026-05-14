@@ -1,9 +1,14 @@
 ---@module "lantern.color"
 
 local config = require "lantern.config"
-local ribbon = require("lantern.deps").ribbon
+local deps = require "lantern.deps"
+local logger = deps.log.new "Lantern"
+local ribbon = deps.ribbon
 
 local M = {}
+
+---@class Lantern.ColorContext
+---@field name? string
 
 local function apply_text_style(style)
   return style.intensity
@@ -12,10 +17,7 @@ local function apply_text_style(style)
     or (style.underline ~= nil and style.underline ~= "None" and style.underline)
 end
 
----Set tab button style in configuration from a Lantern colorscheme.
----@param cfg table
----@param scheme table
-function M.set_tab_button(cfg, scheme)
+local function fallback_set_tab_button(cfg, scheme)
   cfg.tab_bar_style = cfg.tab_bar_style or {}
 
   local wezterm = require "wezterm"
@@ -36,6 +38,26 @@ function M.set_tab_button(cfg, scheme)
 
     cfg.tab_bar_style[state] = tab:format()
   end
+end
+
+---Set tab button style in configuration from a Lantern colorscheme.
+---@param cfg table
+---@param scheme table
+---@param name? string
+function M.set_tab_button(cfg, scheme, name)
+  local formatter = config.get().color.set_tab_button
+  if type(formatter) == "function" then
+    local ok, err = pcall(formatter, cfg, scheme, { name = name })
+    if ok then
+      return
+    end
+
+    if config.get().log.enabled then
+      logger:warn("color tab button formatter failed: %s", tostring(err))
+    end
+  end
+
+  fallback_set_tab_button(cfg, scheme)
 end
 
 ---Apply a colorscheme to a WezTerm config override table.
@@ -60,7 +82,7 @@ function M.apply_scheme(cfg, scheme, name)
       opacity = opacity,
     },
   }
-  M.set_tab_button(cfg, scheme)
+  M.set_tab_button(cfg, scheme, name)
 end
 
 ---Load a built-in Lantern colorscheme flame and return its scheme table.

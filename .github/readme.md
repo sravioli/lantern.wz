@@ -74,6 +74,7 @@ lantern.setup {
   },
   color = {
     opacity = 1,
+    -- set_tab_button = function(config, scheme, ctx) end,
   },
 }
 
@@ -175,12 +176,31 @@ lantern.setup {
 | `persistence.reset_behavior` | `"clear"` or `"persist"` | `"clear"` | How reset selections affect stored state. |
 | `default_font` | table | `{ font_size = 10 }` | Values restored by the font reset flame. |
 | `color.opacity` | number | `1` | Opacity used by built-in colorscheme backgrounds. |
+| `color.set_tab_button` | function? | `nil` | Optional callback used to style `tab_bar_style.new_tab` and `new_tab_hover` after a colorscheme is applied. |
 | `defaults.title` | string | `"Light a wick"` | Default selector title. |
 | `defaults.sort_by` | string | `"id"` | Choice field used for default sorting. |
 | `defaults.fuzzy` | boolean | `true` | Enables fuzzy input selector mode. |
 | `defaults.description` | string | `"Select a flame."` | Prompt text in exact mode. |
 | `defaults.fuzzy_description` | string | `"Search"` | Prompt text in fuzzy mode. |
 | `defaults.alphabet` | string | digits and letters | Input selector shortcut alphabet. |
+
+### Custom tab button formatting
+
+The built-in colorscheme wick also updates WezTerm's `+` tab button so it stays
+readable against the selected theme. If your config already has its own tab
+button formatter, pass it through `color.set_tab_button`:
+
+```lua
+lantern.setup {
+  color = {
+    set_tab_button = function(config, scheme, ctx)
+      config.tab_bar_style = config.tab_bar_style or {}
+      config.tab_bar_style.new_tab = " " .. ctx.name .. " + "
+      config.tab_bar_style.new_tab_hover = config.tab_bar_style.new_tab
+    end,
+  },
+}
+```
 
 ## Custom wicks
 
