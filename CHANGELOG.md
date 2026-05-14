@@ -2,6 +2,28 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [1.2.0](https://github.com/sravioli/lantern.wz/compare/7351d18cd726aa1792306cf10eae80f92c0c27f1..1.2.0) - 2026-05-14
+#### Features
+- (**color**) add tab button formatter hook - ([354a3d3](https://github.com/sravioli/lantern.wz/commit/354a3d3a4810f479726347aa192ede9f3ceb2834)) - sravioli
+#### Bug Fixes
+- (**state**) normalize restored entries - ([b6f4cec](https://github.com/sravioli/lantern.wz/commit/b6f4cec44c2dddad5269d02aa77d186edd721635)) - sravioli
+- (**state**) resolve default paths without warp - ([beec56b](https://github.com/sravioli/lantern.wz/commit/beec56ba4f03f39b33dadf4515a65cd20591143e)) - sravioli
+- (**state**) reload persisted choices on rekindle - ([82a607e](https://github.com/sravioli/lantern.wz/commit/82a607e8e6af6cd4ca737b7d576d3f031e9e2aa5)) - sravioli
+#### Documentation
+- (**github**) add pull request templates - ([16f2c12](https://github.com/sravioli/lantern.wz/commit/16f2c12056ae55ba79e02076c5ed26d05074e1ef)) - sravioli
+- (**github**) polish issue templates - ([2ceae49](https://github.com/sravioli/lantern.wz/commit/2ceae4967f15f29dfc82cb9e03f4b35d3cc9de24)) - sravioli
+- (**lua**) polish comment wording - ([2ce160b](https://github.com/sravioli/lantern.wz/commit/2ce160b7b87a4f8bb411170681a76ea5b4d4d2ef)) - sravioli
+- (**readme**) align documentation with implementation - ([3c416e6](https://github.com/sravioli/lantern.wz/commit/3c416e6025873236a119ad4a0c7a4a7414c71a01)) - sravioli
+- (**readme**) restore Awesome WezTerm badge - ([d7ef30b](https://github.com/sravioli/lantern.wz/commit/d7ef30b29934719e1f81b195d14926f5d5df4fd9)) - sravioli
+- (**readme**) hide pending upstream claims - ([36356e7](https://github.com/sravioli/lantern.wz/commit/36356e7267980b9eb8de5eb52e7994aaeded9fd9)) - sravioli
+- (**readme**) improve readme consistency - ([6ea9136](https://github.com/sravioli/lantern.wz/commit/6ea9136f348a45f9f152da7cba7bd9d10031fb80)) - sravioli
+- (**readme**) improve prose clarity - ([7351d18](https://github.com/sravioli/lantern.wz/commit/7351d18cd726aa1792306cf10eae80f92c0c27f1)) - sravioli
+#### Refactoring
+- (**lantern**) reuse warp helpers - ([32a4abf](https://github.com/sravioli/lantern.wz/commit/32a4abf2e19f5179d6081ece8d3b036d4364559f)) - sravioli
+- (**state**) use warp path helpers - ([64ee123](https://github.com/sravioli/lantern.wz/commit/64ee123b15d510204ed4a1b4e40e3ecd7e2049cb)) - sravioli
+
+- - -
+
 ## [1.1.0](https://github.com/sravioli/lantern.wz/compare/cb4cadf162646e5c70338ccdded7d2da8356ff43..1.1.0) - 2026-05-08
 #### Features
 - (**format**) use ribbon for formatted output - ([cb4cadf](https://github.com/sravioli/lantern.wz/commit/cb4cadf162646e5c70338ccdded7d2da8356ff43)) - sravioli
