@@ -8,21 +8,20 @@ assignees: sravioli
 
 # Feature Request
 
-> Please fill out the sections below. Sections marked _(optional)_ can be left
-> blank if not applicable.
+> Fill out the sections below. Sections marked _(optional)_ can be left blank
+> when they do not apply.
 >
 > Before submitting, check existing issues to make sure this feature hasn't
 > already been requested.
 
 ## Summary
 
-A clear description of the feature or improvement you'd like to see. 3–4
-sentences recommended.
+A short description of the feature or improvement you'd like to see.
 
 ## Motivation
 
-Explain the problem this feature would solve or the use case it enables. Why is
-this change valuable?
+Explain the problem this feature would solve or the use case it enables. Why
+does it belong in this plugin?
 
 ## Proposed solution
 
@@ -40,8 +39,8 @@ fall short.
 
 ## Additional context (optional)
 
-Any other details that might help: links to related issues, references to how
-other WezTerm plugins handle this, screenshots, diagrams, etc.
+Add anything else that might help, such as related issues, examples from other
+WezTerm plugins, screenshots, or diagrams.
 
 ---
 

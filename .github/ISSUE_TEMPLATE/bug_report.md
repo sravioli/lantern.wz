@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a reproducible problem
 title: "[BUG]"
 labels: bug
 assignees: sravioli
@@ -8,16 +8,16 @@ assignees: sravioli
 
 # Bug Report
 
-> Please fill out the sections below. Sections marked _(optional)_ can be left
-> blank if not applicable.
+> Fill out the sections below. Sections marked _(optional)_ can be left blank
+> when they do not apply.
 >
 > Before submitting, check existing issues to make sure this bug hasn't already
 > been reported.
 
 ## Summary (optional)
 
-A brief description of the bug. 3–4 sentences recommended. If the issue title
-already covers it, you can skip this section.
+A short description of the bug. If the issue title already covers it, you can
+skip this section.
 
 ## Environment
 
@@ -74,8 +74,8 @@ relevant portion of your `wezterm.lua`.
 
 ## Additional context (optional)
 
-Any other details that might help: other active plugins, unusual environment
-variables, concurrent processes affecting performance, etc.
+Add anything else that might help, such as other active plugins, unusual
+environment variables, or processes that may affect performance.
 
 ---
 
