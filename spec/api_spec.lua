@@ -341,6 +341,30 @@ describe("lantern api", function()
     remove_file(legacy_path)
   end)
 
+  it("keeps colorscheme new tab styles when tab bar style rekindles", function()
+    local flame = require "lantern.flames.tab-bar-style.tab-bar-style"
+
+    for _, id in ipairs { "retro", "native", "reset", "powerline" } do
+      local cfg = {
+        tab_bar_style = { new_tab = "nt", new_tab_hover = "nth", active_tab_left = "x" },
+      }
+      flame.ignite(cfg, { choice = { id = id } })
+
+      assert.equal("nt", cfg.tab_bar_style.new_tab)
+      assert.equal("nth", cfg.tab_bar_style.new_tab_hover)
+      if id == "powerline" then
+        assert.is_string(cfg.tab_bar_style.active_tab_left)
+        assert.are_not.equal("x", cfg.tab_bar_style.active_tab_left)
+      else
+        assert.is_nil(cfg.tab_bar_style.active_tab_left)
+      end
+    end
+
+    local cfg = {}
+    flame.ignite(cfg, { choice = { id = "retro" } })
+    assert.is_nil(cfg.tab_bar_style)
+  end)
+
   it("clears stale persisted wicks that have no module", function()
     local state_path = tmp_path "lantern-state-stale.json"
     local legacy_path = tmp_path "lantern-legacy-stale-empty.json"
