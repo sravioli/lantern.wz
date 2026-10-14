@@ -44,7 +44,7 @@ local function normalize_entry(entry)
   end
 
   local normalized = { id = id }
-  local keys = { "label", "module", "wick" }
+  local keys = { "label", "module", "wick", "adapter" }
   for i = 1, #keys do
     local key = keys[i]
     local value = field(entry, key)

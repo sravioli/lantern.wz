@@ -109,6 +109,20 @@ return config
 
 The built-in flame modules live under `plugin/lantern/flames`.
 
+GPU discovery is lazy: creating the picker action or loading `lantern.gpu()`
+does not enumerate adapters. Opening the picker or calling `best()` does.
+Avoid calling `best()` during config loading if you want WezTerm to select
+the startup adapter without an extra discovery pass.
+
+GPU selections persist the adapter descriptor, so `rekindle()` can restore
+them without enumeration. Older vendor-only selections are resolved and
+upgraded on their first restore. After changing hardware, reopen the GPU
+picker to replace a saved descriptor.
+
+Plugin bootstraps share an installed-plugin snapshot on the Lua-local
+`wezterm.plugin` table. It refreshes on a missing plugin and starts fresh
+on each config evaluation; it is not stored in `wezterm.GLOBAL`.
+
 ## Public API
 
 | API | Description |

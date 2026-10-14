@@ -19,6 +19,7 @@ local FLAME_DIR_CACHE_VERSION = "v4"
 ---@class Lantern.Choice
 ---@field id string
 ---@field label? string
+---@field adapter? table GPU descriptor for enumeration-free restore.
 
 ---@class Lantern.Context
 ---@field window? table
@@ -375,6 +376,7 @@ function Wick:select(cfg, ctx)
         id = ctx.choice.id,
         module = internal.module_path,
         wick = self._name,
+        adapter = ctx.choice.adapter,
       })
     end
   end
@@ -551,9 +553,12 @@ function M.rekindle(cfg)
       if entry.module then
         local require_ok, flame = pcall(require, entry.module)
         if require_ok and flame then
-          flame_ignite(flame, restored, {
-            choice = { id = entry.id, label = entry.label },
-          })
+          local choice = { id = entry.id, label = entry.label, adapter = entry.adapter }
+          flame_ignite(flame, restored, { choice = choice })
+          if choice.adapter and not entry.adapter then
+            entry.adapter = choice.adapter
+            state.save(wick_name, entry)
+          end
           ok = true
         else
           module_err = flame

@@ -21,7 +21,7 @@ end
 
 local Gpu = {
   VendorMap = {},
-  ENUMERATED_GPUS = enumerate_gpus(),
+  ENUMERATED_GPUS = nil,
   AVAILABLE_BACKENDS = {
     windows = { "Dx12", "Vulkan", "Gl" },
     linux = { "Vulkan", "Gl" },
@@ -32,21 +32,27 @@ local Gpu = {
 Gpu._backends = Gpu.AVAILABLE_BACKENDS[platform] or { "Vulkan", "Gl" }
 Gpu._preferred_backend = Gpu._backends[1]
 
-for i = 1, #Gpu.ENUMERATED_GPUS do
-  local gpu = Gpu.ENUMERATED_GPUS[i]
-  local device_table = Gpu[gpu.device_type]
-  if not device_table then
-    device_table = {}
-    Gpu[gpu.device_type] = device_table
+local function ensure_gpus()
+  if Gpu.ENUMERATED_GPUS then
+    return
   end
-
-  device_table[gpu.backend] = gpu
-  Gpu.VendorMap[tostring(gpu.vendor)] = gpu
+  Gpu.ENUMERATED_GPUS = enumerate_gpus()
+  for i = 1, #Gpu.ENUMERATED_GPUS do
+    local gpu = Gpu.ENUMERATED_GPUS[i]
+    local device_table = Gpu[gpu.device_type]
+    if not device_table then
+      device_table = {}
+      Gpu[gpu.device_type] = device_table
+    end
+    device_table[gpu.backend] = gpu
+    Gpu.VendorMap[tostring(gpu.vendor)] = gpu
+  end
 end
 
 ---Return GPU choices formatted for Lantern.
 ---@return Lantern.Choice[]
 M.glow = function()
+  ensure_gpus()
   local choices = {}
   for i = 1, #Gpu.ENUMERATED_GPUS do
     local gpu = Gpu.ENUMERATED_GPUS[i]
@@ -59,7 +65,11 @@ end
 ---@param cfg table
 ---@param opts Lantern.Context
 M.ignite = function(cfg, opts)
-  local gpu_info = Gpu.VendorMap[tostring(opts.choice.id)]
+  local gpu_info = opts.choice.adapter
+  if not gpu_info then
+    ensure_gpus()
+    gpu_info = Gpu.VendorMap[tostring(opts.choice.id)]
+  end
 
   if not gpu_info then
     logger:error("selected GPU vendor %s not found", tostring(opts.choice.id))
@@ -67,11 +77,13 @@ M.ignite = function(cfg, opts)
   end
 
   cfg.webgpu_preferred_adapter = gpu_info
+  opts.choice.adapter = gpu_info
 end
 
 ---Automatically choose the best available GPU.
 ---@return GpuInfo|nil
 M.best = function()
+  ensure_gpus()
   local preferred_order = { "DiscreteGpu", "IntegratedGpu", "Other", "Cpu" }
   local selected_table = nil
 

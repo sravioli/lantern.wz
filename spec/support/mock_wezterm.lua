@@ -138,14 +138,65 @@ local function encode(value)
 end
 
 local function decode_object(content)
-  local result = {}
-  for wick, body in content:gmatch '"([^"]+)"%s*:%s*{([^}]*)}' do
-    result[wick] = {}
-    for key, value in body:gmatch '"([^"]+)"%s*:%s*"([^"]*)"' do
-      result[wick][key] = value:gsub("\\\\", "\\")
+  local pos = 1
+  local parse
+  local function skip_space()
+    while content:sub(pos, pos):match "%s" do
+      pos = pos + 1
     end
   end
-  return result
+  parse = function()
+    skip_space()
+    local char = content:sub(pos, pos)
+    if char == "{" then
+      pos = pos + 1
+      local result = {}
+      skip_space()
+      while content:sub(pos, pos) ~= "}" do
+        local key = parse()
+        skip_space()
+        assert(content:sub(pos, pos) == ":", "expected JSON colon")
+        pos = pos + 1
+        result[key] = parse()
+        skip_space()
+        if content:sub(pos, pos) ~= "," then
+          break
+        end
+        pos = pos + 1
+      end
+      assert(content:sub(pos, pos) == "}", "expected JSON object end")
+      pos = pos + 1
+      return result
+    end
+    if char == '"' then
+      pos = pos + 1
+      local parts = {}
+      while content:sub(pos, pos) ~= '"' do
+        local value = content:sub(pos, pos)
+        assert(value ~= "", "unterminated JSON string")
+        if value == "\\" then
+          pos = pos + 1
+          value = content:sub(pos, pos)
+        end
+        parts[#parts + 1] = value
+        pos = pos + 1
+      end
+      pos = pos + 1
+      return table.concat(parts)
+    end
+    local token = content:sub(pos):match "^[^,%s}]+"
+    assert(token, "expected JSON value")
+    pos = pos + #token
+    if token == "true" then
+      return true
+    elseif token == "false" then
+      return false
+    elseif token == "null" then
+      return nil
+    end
+    return assert(tonumber(token), "unsupported JSON value")
+  end
+  return parse()
 end
 
 M.serde = {
