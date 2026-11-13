@@ -1,456 +1,368 @@
 # lantern.wz
 
 [![Awesome](https://awesome.re/mentioned-badge.svg)](https://github.com/michaelbrusegard/awesome-wezterm)
-[![Tests](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/tests.yaml?label=Tests&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=tests)
-[![Lint](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/lint.yaml?label=Lint&logo=Lua)](https://github.com/sravioli/lantern.wz/actions?workflow=lint)
+[![Tests](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/tests.yaml?style=flat-square&label=tests)](https://github.com/sravioli/lantern.wz/actions/workflows/tests.yaml)
+[![Lint](https://img.shields.io/github/actions/workflow/status/sravioli/lantern.wz/lint.yaml?style=flat-square&label=lint)](https://github.com/sravioli/lantern.wz/actions/workflows/lint.yaml)
 [![Coverage](https://img.shields.io/coverallsCoverage/github/sravioli/lantern.wz?label=Coverage&logo=coveralls)](https://coveralls.io/github/sravioli/lantern.wz)
+[![Code license](https://img.shields.io/badge/code-GPL--2.0-blue?style=flat-square)](../LICENSE)
+[![Docs license](https://img.shields.io/badge/docs-CC_BY--NC_4.0-blue?style=flat-square)](../LICENSE-DOCS)
 
-A selector plugin for [WezTerm](https://wezfurlong.org/wezterm/). Lantern opens
-small pickers for things you change often: colorschemes, fonts, GPU adapters,
-window opacity, cursor style, and your own config presets.
+Pick and remember appearance settings in [WezTerm](https://wezterm.org/).
 
-The naming is simple once you see the shape:
+Change colors, fonts, spacing, GPU adapters, or your own presets from a
+selector. A **wick** is a named selector; a **flame** supplies choices with
+`glow()` and applies one with `ignite(config, ctx)`.
 
-- A **wick** is a selector.
-- A **flame** provides choices with `glow()`.
-- A flame applies the selected choice with `ignite(config, ctx)`.
-
-- Built-in wicks for colorschemes, fonts, font sizing, GPUs, window appearance,
-  cursor style, ligatures, and tab bar style
-- User-defined wicks backed by inline flames, module flames, or flame folders
-- Persisted selections restored during startup with `lantern.rekindle(config)`
-- Reset choices can clear saved state
-- Flame folder discovery is cached through `memo.wz`
-- Color previews for colorscheme choices
-- Uses `log.wz`, `memo.wz`, `ribbon.wz`, and `warp.wz` for logging, state,
-  formatting, and path helpers
-
-## Installation
-
-```lua
-local wezterm = require "wezterm"
-
--- from git
-local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
-
--- from a local checkout
-local lantern = wezterm.plugin.require("file:///" .. wezterm.config_dir .. "/plugins/lantern.wz")
-```
-
-Lantern loads these plugin dependencies automatically:
-
-- [`log.wz`](https://github.com/sravioli/log.wz) for tagged logging
-- [`memo.wz`](https://github.com/sravioli/memo.wz) for cache and state storage
-- [`ribbon.wz`](https://github.com/sravioli/ribbon.wz) for formatted text segments
-- [`warp.wz`](https://github.com/sravioli/warp.wz) for path, table, and string helpers
-
-<!--
-### Type annotations
-
-Lantern ships LuaCATS annotations. After installing
-[wezterm-types](https://github.com/DrKJeff16/wezterm-types), annotate the import
-to get completion and type checking:
-
-```lua
----@type Lantern
-local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
-```
--->
+[Quick start](#quick-start) · [Usage](#usage) · [Configuration](#configuration) · [API reference](#api-reference) · [Troubleshooting](#troubleshooting) · [Development](#development) · [License](#license)
 
 ## Quick start
 
+### Requirements
+
+Requires **[WezTerm nightly with launcher-label colors (2025-05-11) or newer](https://github.com/wezterm/wezterm/commit/4a32feaa7eccda9b35a3cf5967946ce0fdd31486)**
+and Git for all bundled themes and persistence.
+Stable [`20240127-113634-bbcac864`](https://wezterm.org/config/lua/keyassignment/InputSelector.html)
+supports choices without nightly-only fields, with persistence disabled.
+GPU selection needs [`front_end = "WebGpu"`](https://wezterm.org/config/lua/config/webgpu_preferred_adapter.html).
+
+Automatically loads [log.wz](https://github.com/sravioli/log.wz),
+[memo.wz](https://github.com/sravioli/memo.wz),
+[ribbon.wz](https://github.com/sravioli/ribbon.wz), and
+[warp.wz](https://github.com/sravioli/warp.wz) through remote plugin URLs.
+Dependency failure raises. Install selected fonts yourself.
+Save state outside the config directory in a writable file whose parent exists.
+
+### Install and run
+
+Put this in `wezterm.lua`:
+
 ```lua
 local wezterm = require "wezterm"
 local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
-
 local config = wezterm.config_builder()
 
-lantern.setup {
-  default_font = {
-    font_size = config.font_size,
-    font = config.font,
-    font_rules = config.font_rules,
-    line_height = config.line_height,
-  },
-  color = {
-    opacity = 1,
-    -- set_tab_button = function(config, scheme, ctx) end,
-  },
-}
-
 lantern.rekindle(config)
-
 config.keys = {
-  { key = "c", mods = "CTRL|SHIFT", action = lantern.light.colorscheme() },
-  { key = "f", mods = "CTRL|SHIFT", action = lantern.light.font() },
-  { key = "s", mods = "CTRL|SHIFT", action = lantern.light.font_size() },
-  { key = "l", mods = "CTRL|SHIFT", action = lantern.light.font_leading() },
-  { key = "g", mods = "CTRL|SHIFT", action = lantern.light.gpu() },
+  { key = "p", mods = "CTRL|SHIFT", action = lantern.light.colorscheme() },
 }
 
 return config
 ```
 
-## Built-in wicks
+Press **Ctrl+Shift+P**, type to filter, and press Enter to apply a theme.
+Esc cancels. The colorscheme list includes palette swatches.
+In an existing config, restore after setting your base options, but before
+the final return; append the binding to your existing keys.
 
-| Wick | Action | Description |
-| --- | --- | --- |
-| `colorschemes` | `lantern.light.colorscheme()` | Pick a bundled colorscheme and apply preview-aware overrides. |
-| `fonts` | `lantern.light.font()` | Pick a bundled font preset or reset to `default_font`. |
-| `font-sizes` | `lantern.light.font_size()` | Pick a font size from 8pt through 30pt, plus reset. |
-| `font-leadings` | `lantern.light.font_leading()` | Pick a line-height value or reset to default. |
-| `gpus` | `lantern.light.gpu()` | Pick a GPU adapter from `wezterm.gui.enumerate_gpus()`. |
-| `window-opacity` | `lantern.light.window_opacity()` | Pick a window background opacity or reset to the base config. |
-| `window-padding` | `lantern.light.window_padding()` | Pick compact, normal, spacious, or wide window padding. |
-| `cursor-style` | `lantern.light.cursor_style()` | Pick a steady or blinking cursor shape. |
-| `inactive-pane-opacity` | `lantern.light.inactive_pane_opacity()` | Pick inactive pane dimming through `inactive_pane_hsb`. |
-| `font-ligatures` | `lantern.light.font_ligatures()` | Pick standard, discretionary, or disabled HarfBuzz ligatures. |
-| `tab-bar-style` | `lantern.light.tab_bar_style()` | Pick native, retro, or bundled powerline tab styling. |
+## Usage
 
-The built-in flame modules live under `plugin/lantern/flames`.
+### Add appearance controls
 
-GPU discovery is lazy: creating the picker action or loading `lantern.gpu()`
-does not enumerate adapters. Opening the picker or calling `best()` does.
-Avoid calling `best()` during config loading if you want WezTerm to select
-the startup adapter without an extra discovery pass.
+Add bindings using `lantern.light.font_size()`, `window_opacity()`, or
+the other [built-in actions](#built-in-picker-actions). Each returns a native
+WezTerm key assignment; creating it does not open the selector or scan flames.
+Selection changes the current window's overrides. The next `rekindle` applies
+saved choices to the base config, so new windows can use them too.
 
-GPU selections persist the adapter descriptor, so `rekindle()` can restore
-them without enumeration. Older vendor-only selections are resolved and
-upgraded on their first restore. After changing hardware, reopen the GPU
-picker to replace a saved descriptor.
+For font reset, set base font options first, then capture them before restore:
 
-Plugin bootstraps share an installed-plugin snapshot on the Lua-local
-`wezterm.plugin` table. It refreshes on a missing plugin and starts fresh
-on each config evaluation; it is not stored in `wezterm.GLOBAL`.
+```lua
+lantern.setup {
+  default_font = {
+    font = config.font,
+    font_size = config.font_size,
+    font_rules = config.font_rules,
+    line_height = config.line_height,
+  },
+}
+lantern.rekindle(config)
+```
 
-## Public API
+Font reset restores only the default-font fields you supplied. It normally
+clears the saved choice, but leaves other window overrides alone.
 
-| API | Description |
-| --- | --- |
-| `lantern.setup(opts)` | Merge user options into Lantern defaults. |
-| `lantern.rekindle(config?)` | Restore persisted selections into a config table. |
-| `lantern.light.colorscheme()` | Return a WezTerm action for the built-in colorscheme wick. |
-| `lantern.light.font()` | Return a WezTerm action for the built-in font wick. |
-| `lantern.light.font_size()` | Return a WezTerm action for the built-in font-size wick. |
-| `lantern.light.font_leading()` | Return a WezTerm action for the built-in line-height wick. |
-| `lantern.light.gpu()` | Return a WezTerm action for the built-in GPU wick. |
-| `lantern.light.window_opacity()` | Return a WezTerm action for the built-in window-opacity wick. |
-| `lantern.light.window_padding()` | Return a WezTerm action for the built-in window-padding wick. |
-| `lantern.light.cursor_style()` | Return a WezTerm action for the built-in cursor-style wick. |
-| `lantern.light.inactive_pane_opacity()` | Return a WezTerm action for the built-in inactive-pane-opacity wick. |
-| `lantern.light.font_ligatures()` | Return a WezTerm action for the built-in font-ligatures wick. |
-| `lantern.light.tab_bar_style()` | Return a WezTerm action for the built-in tab-bar-style wick. |
-| `lantern.light(name)` | Return a WezTerm action for a custom wick. |
-| `lantern.add_wick(name, spec)` | Register a custom wick. |
-| `lantern.wick(name)` | Return a registered wick. |
-| `lantern.flames.from_dir(path_or_segments)` | Return cached flame module paths from one directory. |
-| `lantern.flames.from_dirs(paths)` | Return cached flame module paths from multiple directories. |
-| `lantern.color.scheme(name)` | Return a built-in colorscheme table by name. |
-| `lantern.gpu().best()` | Return the best detected GPU adapter. |
+### Build a custom selector
+
+Register the wick after setup and before `rekindle`, so restore can find it:
+
+```lua
+lantern.add_wick("scrollback", {
+  title = "Scrollback size",
+  flames = {
+    {
+      glow = function()
+        return {
+          { id = "3500", label = "Compact" },
+          { id = "10000", label = "Long" },
+        }
+      end,
+      ignite = function(cfg, ctx)
+        cfg.scrollback_lines = tonumber(ctx.choice.id)
+      end,
+    },
+  },
+})
+```
+
+Bind `lantern.light "scrollback"`. A flame can also be the name of a Lua
+module. `glow` returns a scalar, `{ id, label? }`, or a list of choices; use unique
+string IDs. `ignite` mutates the supplied config/override table.
+Legacy names `get` and `pick` are aliases for `glow` and `ignite`.
+
+During restore, callbacks may receive only `ctx.choice`, without a window or
+pane. A flame restored during config evaluation must not depend on GUI state.
+
+### Discover preset modules when needed
+
+```lua
+lantern.add_wick("profiles", {
+  flame_dirs = { wezterm.config_dir .. "/lantern/profiles" },
+  restore_after = "colorschemes",
+})
+```
+
+Place `.lua` flame modules that can be loaded by name in that directory.
+Lantern scans it when the wick first initializes, not when the plugin loads.
+A string is a directory path; a string-array spec such as `{ "fonts" }` points
+beneath Lantern's bundled flames. Successful lists stay cached for the process;
+empty scans are retried. List modules explicitly if you need to control when
+the available choices change.
 
 ## Configuration
 
-`setup()` deep-merges your options with Lantern defaults. You can pass a partial
-table; missing fields keep their default values.
+### Example
+
+Setup is optional. Call it before registering custom wicks and restoring:
 
 ```lua
 lantern.setup {
-  log = {
-    enabled = true,
-  },
-  persistence = {
-    enabled = true,
-    path = nil,
-    legacy_path = nil,
-    reset_behavior = "clear",
-  },
-  default_font = {
-    font_size = 10,
-  },
-  color = {
-    opacity = 1,
-  },
-  defaults = {
-    title = "Light a wick",
-    sort_by = "id",
-    fuzzy = true,
-    description = "Select a flame.",
-    fuzzy_description = "Search",
-    alphabet = "1234567890abcdefghilmnopqrstuvwxyz",
-  },
+  persistence = { path = wezterm.home_dir .. "/.lantern-state.json" },
+  color = { opacity = 0.9 },
+  defaults = { fuzzy = false },
 }
 ```
 
-| Field | Type | Default | Description |
+The values above override the defaults. Lantern creates built-in wicks at
+import time, so they keep their original selector settings. `defaults` applies
+to wicks you register afterward.
+
+### Options
+
+#### Plugin settings
+
+| Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `log.enabled` | boolean | `true` | Enables Lantern logging. |
-| `persistence.enabled` | boolean | `true` | Saves selected choices for startup restore. |
-| `persistence.path` | string? | auto | State file path. |
-| `persistence.legacy_path` | string? | auto | Legacy picker state path used for migration. |
-| `persistence.reset_behavior` | `"clear"` or `"persist"` | `"clear"` | How reset selections affect stored state. |
-| `default_font` | table | `{ font_size = 10 }` | Values restored by the font reset flame. |
-| `color.opacity` | number | `1` | Opacity used by built-in colorscheme backgrounds. |
-| `color.set_tab_button` | function? | `nil` | Optional callback used to style `tab_bar_style.new_tab` and `new_tab_hover` after a colorscheme is applied. |
-| `defaults.title` | string | `"Light a wick"` | Default selector title. |
-| `defaults.sort_by` | string | `"id"` | Choice field used for default sorting. |
-| `defaults.fuzzy` | boolean | `true` | Enables fuzzy input selector mode. |
-| `defaults.description` | string | `"Select a flame."` | Prompt text in exact mode. |
-| `defaults.fuzzy_description` | string | `"Search"` | Prompt text in fuzzy mode. |
-| `defaults.alphabet` | string | digits and letters | Input selector shortcut alphabet. |
-| `defaults.icons` | table | Nerd Font-backed icons | Icons and punctuation used by selector descriptions. |
-| `defaults.comp` | function | reset-first ID sort | Choice comparator factory. |
-| `defaults.format_choices` | function | passthrough formatter | Converts internal choices into `InputSelector` choices. |
-| `defaults.format_description` | function | icon + prompt formatter | Builds exact and fuzzy selector prompt text. |
+| `log.enabled` | `boolean` | `true` | Gate core diagnostics; dependency loggers can still emit their own errors. |
+| `persistence.enabled` | `boolean` | `true` | Gate explicit save/clear/flush helpers; reads and legacy migration still run. |
+| `persistence.path` | `string?` | `nil` | Compute `lantern-state.json` in the platform state directory when omitted. |
+| `persistence.legacy_path` | `string?` | `nil` | Compute `picker-state.json` beside the default state location for migration. |
+| `persistence.reset_behavior` | `"clear"\|"persist"` | `"clear"` | Clear saved reset choices, or retain them like other choices. |
+| `default_font.font_size` | `number` | `10` | Font reset size in points. |
+| `default_font.font` | `table?` | `nil` | Font reset family/style object. |
+| `default_font.font_rules` | `table[]?` | `nil` | Font rules copied on reset. |
+| `default_font.line_height` | `number?` | `nil` | Line-height multiplier copied on reset. |
+| `color.opacity` | `number` | `1` | Background-layer opacity when applying a scheme; use WezTerm's `0..1` range. |
+| `color.set_tab_button` | `fun(config: table, scheme: table, ctx: Lantern.ColorContext)` | `nil` | Custom new-tab button formatter; context contains optional `name`. Failure logs and uses the built-in formatter. |
+| `defaults.title` | `string` | `"Light a wick"` | Title inherited by newly registered wicks. |
+| `defaults.sort_by` | `string` | `"id"` | Choice field for the default comparator. |
+| `defaults.fuzzy` | `boolean` | `true` | Initial fuzzy selector mode. |
+| `defaults.description` | `string` | `"Select a flame."` | Exact-mode description. |
+| `defaults.fuzzy_description` | `string` | `"Search"` | Fuzzy-mode prompt. |
+| `defaults.alphabet` | `string` | `"1234567890abcdefghilmnopqrstuvwxyz"` | Exact-mode shortcut characters. |
+| `defaults.icons.lantern` | `string` | Computed Nerd Font glyph or `""` | First available `md_lan`, `md_flashlight`, or `md_pickaxe`. |
+| `defaults.icons.fuzzy.ico` | `string` | Computed `cod_search_fuzzy` glyph or `""` | Fuzzy prompt icon. |
+| `defaults.icons.fuzzy.punct` | `string` | `"❭"` | Fuzzy prompt punctuation. |
+| `defaults.icons.exact.ico` | `string` | Computed `cod_search` glyph or `""` | Exact prompt icon. |
+| `defaults.icons.exact.punct` | `string` | `":"` | Exact prompt punctuation. |
+| `defaults.comp` | `fun(field: string): function` | Built-in reset-first comparator factory | Sort reset-looking choices first, then compare field values as strings. |
+| `defaults.format_choices` | `Lantern.FormatChoices` | Built-in ID/label projection | Convert internal choice records into selector choices; see [types](../plugin/lantern/config.lua). |
+| `defaults.format_description` | `Lantern.FormatDescription` | Built-in icon/prompt formatter | Construct exact/fuzzy prompt text. |
 
-### Custom tab button formatting
+#### Wick settings
 
-The built-in colorscheme wick also updates WezTerm's `+` tab button so it stays
-readable against the selected theme. If your config already has its own tab
-button formatter, pass it through `color.set_tab_button`:
+Pass these in `lantern.add_wick(name, spec)`. A wick keeps the selector defaults
+in effect when you register it.
 
-```lua
-lantern.setup {
-  color = {
-    set_tab_button = function(config, scheme, ctx)
-      config.tab_bar_style = config.tab_bar_style or {}
-      config.tab_bar_style.new_tab = " " .. ctx.name .. " + "
-      config.tab_bar_style.new_tab_hover = config.tab_bar_style.new_tab
-    end,
-  },
-}
-```
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `name` | `string?` | Registration name | Optional internal name; normally omit it. |
+| `flames` | `(string\|Lantern.Flame)[]` | `{}` | Inline flames or require-able modules. |
+| `flame_dirs` | `Lantern.FlameDir[]` | `{}` | Lazily scanned directories; see [discovery](#discover-preset-modules-when-needed). |
+| `title` | `string` | `defaults.title` | Selector title. |
+| `sort_by` | `string` | `defaults.sort_by` | Default comparator field. |
+| `fuzzy` | `boolean` | `defaults.fuzzy` | Initial search mode. |
+| `alphabet` | `string` | `defaults.alphabet` | Exact selector shortcuts. |
+| `description` | `string` | `defaults.description` | Exact-mode prompt. |
+| `fuzzy_description` | `string` | `defaults.fuzzy_description` | Fuzzy-mode prompt. |
+| `persist` | `boolean` | `persistence.enabled` at registration | Whether selection attempts to save this wick. Global disabled writes still take precedence. |
+| `restore_after` | `string\|string[]` | `{}` | Registered wick names to restore first. |
+| `restore_priority` | `number` | `0` | Lower values sort first among unrelated wicks; dependencies win. |
+| `comp` | `fun(a: Lantern.Choice, b: Lantern.Choice): boolean` | Computed from `defaults.comp(sort_by)` | Comparator for formatted choices. |
+| `format_choices` | `Lantern.FormatChoices` | `defaults.format_choices` | Choice projection callback. |
+| `format_description` | `Lantern.FormatDescription` | `defaults.format_description` | Prompt-format callback. |
 
-## Custom wicks
+### Behavior and precedence
 
-A wick is a named set of flames. A flame can expose:
+Each setup call merges fresh defaults with your options using Warp's deep
+`"force"` merge. Maps merge and lists replace. Lantern does not schema-validate
+unknown settings. Existing wicks keep their selector settings; color and state
+helpers read the current settings when they run.
 
-- `glow(ctx?)`, returning one choice or a list of choices
-- `ignite(config, ctx)`, applying the selected choice
+State defaults to `%LOCALAPPDATA%\wezterm` (then `%APPDATA%\wezterm`) on Windows,
+or `$XDG_STATE_HOME/wezterm` (then `$HOME/.local/state/wezterm`) elsewhere.
+If those are unavailable, it falls back to `wezterm.config_dir`, then `.`.
+Inspect `lantern.state.path()` and create its parent directory yourself.
+Memo's file writes do not create it. Prefer an explicit writable path outside
+the config directory to avoid reload loops.
 
-Older names still work: `get()` is treated like `glow()`, and
-`pick(config, ctx)` is treated like `ignite(config, ctx)`.
+`rekindle` rereads disk and applies saved flames to the supplied config.
+Window overrides still take precedence over base config values.
+Lantern restores dependencies first, then orders unrelated entries by
+priority and name. A cycle produces a warning without stopping the whole restore.
+Turning persistence off does not prevent restore or legacy migration. Omit
+`rekindle` if you do not want either.
 
-### Inline flames
+Lantern recognizes a reset by ID `"reset"` or label `"Reset"`, ignoring case.
+Legacy picker state can migrate when active state is empty; module names
+starting `picker.assets.` become `lantern.flames.`. GPU records keep the adapter
+descriptor so restore does not need to enumerate again; old vendor-only records
+enumerate once to upgrade. Reopen the GPU picker after changing hardware.
 
-```lua
-lantern.add_wick("scrollback-size", {
-  title = "Lantern: scrollback size",
-  flames = {
-    {
-      glow = function()
-        return {
-          { id = "3500", label = "Default" },
-          { id = "10000", label = "Long" },
-          { id = "50000", label = "Archive" },
-        }
-      end,
+## API reference
 
-      ignite = function(config, ctx)
-        config.scrollback_lines = tonumber(ctx.choice.id)
-      end,
-    },
-  },
-})
+`?` marks optional arguments or nullable results. Module calls use `.`;
+wick instance calls use `:`. An action result is a WezTerm key assignment.
 
--- Bind with:
--- lantern.light "scrollback-size"
-```
+### Selectors and helpers
 
-### Module flames
-
-```lua
-lantern.add_wick("profiles", {
-  title = "Lantern: profile",
-  flames = {
-    "my_lantern_flames.work",
-    "my_lantern_flames.home",
-  },
-})
-```
-
-Each module should return a flame:
-
-```lua
-local M = {}
-
-function M.glow()
-  return { id = "work", label = "Work" }
-end
-
-function M.ignite(config, ctx)
-  config.default_prog = { "pwsh.exe", "-NoLogo" }
-  config.launch_menu = {
-    { label = ctx.choice.label, args = config.default_prog },
-  }
-end
-
-return M
-```
-
-### Folder-backed flames
-
-Use `flame_dirs` when a wick should load every `.lua` flame module from a folder.
-This is the usual choice for user presets. Lantern scans the folder when the
-wick opens, not while WezTerm is requiring the plugin, so it avoids the
-`wezterm.read_dir()` yield problem that can happen during plugin load.
-
-```lua
-lantern.add_wick("profiles", {
-  title = "Lantern: profile",
-  flame_dirs = {
-    wezterm.config_dir .. "/lantern/profiles",
-  },
-})
-```
-
-`flame_dirs` accepts absolute directory paths. Built-in wicks pass path segments
-such as `{ "colorschemes" }`, which Lantern resolves under
-`plugin/lantern/flames`.
-
-If you do want an immediate module list, `lantern.flames.from_dir(path)` returns
-cached module paths:
-
-```lua
-lantern.add_wick("profiles", {
-  title = "Lantern: profile",
-  flames = lantern.flames.from_dir(wezterm.config_dir .. "/lantern/profiles"),
-})
-```
-
-Use immediate expansion only when the list should be built during config load.
-For normal selector flows, `flame_dirs` is safer.
-
-## Choice model
-
-`glow()` can return a string, number, choice table, or list of choice tables.
-Lantern normalizes each entry into this shape:
-
-```lua
-{
-  id = "required-id",
-  label = "Optional display label",
-}
-```
-
-Selection callbacks receive this context:
-
-```lua
-{
-  window = window,
-  pane = pane,
-  choice = { id = "required-id", label = "Optional display label" },
-  wick = wick,
-}
-```
-
-## Persistence
-
-Lantern stores selections outside `wezterm.config_dir` by default. That keeps
-state writes from triggering config reloads.
-
-| OS | Default path |
+| Signature → Return type | Description |
 | --- | --- |
-| Windows | `%LOCALAPPDATA%\wezterm\lantern-state.json` |
-| Linux / macOS | `$XDG_STATE_HOME/wezterm/lantern-state.json` |
+| `lantern.setup(options?) → Lantern.Config` | Reset settings to defaults plus overrides. |
+| `lantern.config.setup(options?) → Lantern.Config` | Same setup operation. |
+| `lantern.config.get() → Lantern.Config` | Return the live settings reference. |
+| `lantern.config.defaults() → Lantern.Config` | Deep-copy defaults. |
+| `lantern.add_wick(name, spec) → Lantern.Wick` | Register/replace a wick by name. |
+| `lantern.wick(name) → Lantern.Wick?` | Get the registered instance. |
+| `lantern.light(name) → KeyAssignment` | Create an action for a named wick; unknown names log and return `Nop`. |
+| `lantern.rekindle(config?) → table` | Restore into and return the supplied config, or a new table. |
+| `wick:register(flame) → nil` | Add choices from a module name or inline flame; duplicate IDs replace earlier choices. |
+| `wick:select(config, context) → nil` | Apply `context.choice` and update saved state; restore context may omit window/pane. |
+| `wick:light() → KeyAssignment` | Register its selection event once and return an event action. |
+| `lantern.flames.from_dir(directory) → string[]` | Discover cached module names immediately; directory is a path or bundled path segments. |
+| `lantern.flames.from_dirs(directories) → string[]` | Concatenate immediate discovery results. |
+| `lantern.color.scheme(name) → table?` | Get a bundled scheme by flame-module name, such as `"kanagawa-wave"`; shared table. |
+| `lantern.color.apply_scheme(config, scheme, name) → nil` | Set scheme, palette/character-selector colors, background layer, and tab button. Replaces `background`. |
+| `lantern.color.set_tab_button(config, scheme, name?) → nil` | Apply the configured formatter or built-in new-tab styles. |
+| `lantern.gpu() → Lantern.Flame` | Get the lazy GPU flame; no enumeration yet. |
+| `lantern.gpu().best() → GpuInfo?` | Enumerate/cache adapters; prefer discrete, integrated, other, then CPU. |
+| `lantern.gpu().glow() → Lantern.Choice[]` | Enumerate/cache choices for the GPU picker. |
+| `lantern.gpu().ignite(config, context) → nil` | Apply the saved adapter or resolve a legacy vendor ID. |
 
-Override the path with:
+Immediate discovery can yield, so use `flame_dirs` when registering wicks
+during config loading. Lantern logs flame-load failures during initialization
+and skips those flames, but `ignite` errors can propagate. Make sure custom
+callbacks are safe in the context where they run.
+
+### Built-in picker actions
+
+| Signature → Return type | Description |
+| --- | --- |
+| `lantern.light.colorscheme() → KeyAssignment` | `colorschemes`: bundled themes with palette swatches. |
+| `lantern.light.font() → KeyAssignment` | `fonts`: bundled font presets and configured reset; install the fonts yourself. |
+| `lantern.light.font_size() → KeyAssignment` | `font-sizes`: point sizes and reset. |
+| `lantern.light.font_leading() → KeyAssignment` | `font-leadings`: line-height multipliers and reset. |
+| `lantern.light.gpu() → KeyAssignment` | `gpus`: lazily discovered adapters. |
+| `lantern.light.window_opacity() → KeyAssignment` | `window-opacity`: background opacity and reset. |
+| `lantern.light.window_padding() → KeyAssignment` | `window-padding`: padding presets. |
+| `lantern.light.cursor_style() → KeyAssignment` | `cursor-style`: steady/blinking cursor shapes. |
+| `lantern.light.inactive_pane_opacity() → KeyAssignment` | `inactive-pane-opacity`: inactive pane HSB presets. |
+| `lantern.light.font_ligatures() → KeyAssignment` | `font-ligatures`: HarfBuzz feature presets. |
+| `lantern.light.tab_bar_style() → KeyAssignment` | `tab-bar-style`: native, retro, and powerline styles; restores after colorschemes. |
+
+### Saved state
+
+| Signature → Return type | Description |
+| --- | --- |
+| `lantern.state.save(wick_name, entry) → nil` | Save `{ id, label?, module?, wick?, adapter? }` when persistence is enabled. |
+| `lantern.state.get(wick_name) → table?` | Read one stored entry. |
+| `lantern.state.clear(wick_name?) → nil` | Clear one or all saved entries; disabled persistence prevents this. |
+| `lantern.state.flush() → nil` | Save the current mirror when enabled; no success result. |
+| `lantern.state.all(options?) → table` | Get normalized entries; `options.reload = true` rereads disk. |
+| `lantern.state.reload() → table` | Alias for `all { reload = true }`. |
+| `lantern.state.path() → string` | Resolve the active state path. |
+| `lantern.state.legacy_path() → string` | Resolve the migration source path. |
+
+`state.get` can return a GLOBAL-backed proxy; treat it as read-only.
+The normalized outer tables from `all` may still contain a nested adapter proxy.
+
+## Troubleshooting
+
+### A selection is not restored
+
+Register custom wicks before `rekindle`, verify the state parent directory
+exists, and check the debug overlay (**Ctrl+Shift+L**). Removed flame modules
+or changed choice IDs can make old records stale. Clear the affected wick's
+state instead of deleting unrelated saved choices.
+
+### The font or GPU does not change
+
+Install the selected font. GPU choice depends on GUI enumeration and the
+active graphics backend; creating a picker action alone does not enumerate.
+`best()` does enumerate, so avoid it during config loading if unnecessary.
+
+Update plugins with `wezterm.plugin.update_all()` from the debug overlay and
+reload. Report [issues](https://github.com/sravioli/lantern.wz/issues) with
+the wick/flame, sanitized state, plugin revision, and WezTerm build.
+
+## Development
+
+### Local checkout
+
+Clone into `plugins/lantern.wz` beneath `wezterm.config_dir`, then replace
+the remote import:
 
 ```lua
-lantern.setup {
-  persistence = {
-    path = "C:/path/to/lantern-state.json",
-    reset_behavior = "clear",
-  },
-}
+local wezterm = require "wezterm"
+local lantern = wezterm.plugin.require(
+  "file:///" .. wezterm.config_dir .. "/plugins/lantern.wz"
+)
 ```
 
-`lantern.rekindle(config)` reads saved choices and applies their flames to the
-given config table.
+Its four dependencies still resolve through their remote URLs; keep them
+installed for offline use.
 
-Wicks can declare restore dependencies when one persisted choice must be
-applied after another. This is useful for custom wicks that derive their values
-from another wick's config changes:
+### Editor support
+
+Follow the [wezterm-types setup](https://github.com/DrKJeff16/wezterm-types):
 
 ```lua
-lantern.add_wick("profile-tab-style", {
-  restore_after = "profiles",
-  flames = { "my_lantern_flames.profile_tab_style" },
-})
+---@type Lantern
+local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
 ```
 
-`restore_after` accepts a wick name or a list of wick names. `restore_priority`
-can also be set to order unrelated wicks; lower values run first.
+The [published definitions](https://github.com/DrKJeff16/wezterm-types/blob/main/lua/wezterm/types/plugins/lantern.lua)
+cover the main API, but omit restore ordering, saved GPU descriptors,
+`color.set_tab_button`, and state reload helpers. Consult the
+[core](../plugin/lantern/core.lua), [config](../plugin/lantern/config.lua), and
+[state](../plugin/lantern/state.lua) annotations for this revision.
 
-`reset_behavior = "clear"` removes a wick's saved value when you pick a flame
-with `id = "reset"` or label `"Reset"`. Use `"persist"` if reset choices should
-be saved like any other choice.
+### Checks and contributions
 
-Lantern also migrates old picker state once, rewriting module paths from
-`picker.assets.*` to `lantern.flames.*`.
+From the repository root, with Lua 5.4 and the named tools installed:
 
-## GPU helper
-
-The GPU flame can be used without opening the selector:
-
-```lua
-local gpu = lantern.gpu().best()
-
-if gpu then
-  config.webgpu_preferred_adapter = gpu
-end
+```sh
+busted --verbose
+luacheck .
+selene --display-style=quiet .
+stylua --check .
 ```
 
-The helper prefers discrete GPUs, then integrated GPUs, then other adapters. It
-uses the platform's preferred backend when WezTerm exposes one.
-
-## Examples
-
-Add custom command profiles:
-
-```lua
-lantern.add_wick("profiles", {
-  title = "Lantern: profile",
-  flames = {
-    {
-      glow = function()
-        return {
-          { id = "pwsh", label = "PowerShell" },
-          { id = "wsl", label = "WSL" },
-        }
-      end,
-      ignite = function(config, ctx)
-        if ctx.choice.id == "pwsh" then
-          config.default_prog = { "pwsh.exe", "-NoLogo" }
-        elseif ctx.choice.id == "wsl" then
-          config.default_prog = { "wsl.exe" }
-        end
-      end,
-    },
-  },
-})
-```
-
-Add command palette entries:
-
-```lua
-wezterm.on("augment-command-palette", function()
-  return {
-    {
-      brief = "Lantern: colorscheme",
-      icon = "md_palette",
-      action = lantern.light.colorscheme(),
-    },
-    {
-      brief = "Lantern: font",
-      icon = "md_format_font",
-      action = lantern.light.font(),
-    },
-  }
-end)
-```
+The suite uses mocked dependencies and GUI APIs. Follow the
+[contribution guide](contributing.md), preserve compatible defaults, and use
+Conventional Commits.
 
 ## License
 
-Code is licensed under the [GNU General Public License v2](../LICENSE).
-Documentation is licensed under
-[Creative Commons Attribution-NonCommercial 4.0 International](../LICENSE-DOCS).
+Code: [GNU GPL v2](../LICENSE). Documentation:
+[CC BY-NC 4.0](../LICENSE-DOCS). Preserve source attribution, including the
+font reset contribution credited to `sravioli, akthe-at`.
