@@ -17,5 +17,13 @@ M.log = require_plugin "https://github.com/sravioli/log.wz"
 M.memo = require_plugin "https://github.com/sravioli/memo.wz"
 M.ribbon = require_plugin "https://github.com/sravioli/ribbon.wz"
 M.warp = require_plugin "https://github.com/sravioli/warp.wz"
+local warden
+
+---Loaded on first use, so users who set `validate = false` never pull warden.
+---@return Warden
+function M.warden()
+  warden = warden or require_plugin "https://github.com/sravioli/warden.wz"
+  return warden
+end
 
 return M

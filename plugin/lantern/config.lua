@@ -1,6 +1,7 @@
 ---@module "lantern.config"
 
-local tbl = require("lantern.deps").warp.table
+local deps = require "lantern.deps"
+local tbl = deps.warp.table
 
 ---@class Lantern.Config
 ---@field log Lantern.LogConfig
@@ -8,6 +9,7 @@ local tbl = require("lantern.deps").warp.table
 ---@field defaults Lantern.DefaultConfig
 ---@field default_font table
 ---@field color Lantern.ColorConfig
+---@field validate boolean Set to `false` to skip option validation (and never load warden).
 local M = {}
 
 ---@class Lantern.LogConfig
@@ -62,6 +64,8 @@ local function default_comp(sort_by)
 end
 
 local defaults = {
+  validate = true,
+
   log = {
     enabled = true,
   },
@@ -121,13 +125,108 @@ local defaults = {
   },
 }
 
+-- Validates user options only; the merge below still extends the defaults.
+local function build_schema()
+  local w = deps.warden()
+  local function fn()
+    return w.any():optional():refine(function(v)
+      return type(v) == "function"
+    end, "Expected function")
+  end
+  return w.object({
+    validate = w.boolean():optional(),
+    log = w.object({ enabled = w.boolean():optional() }):optional():unknown "warn",
+    persistence = w.object({
+      enabled = w.boolean():optional(),
+      path = w.string():optional(),
+      legacy_path = w.string():optional(),
+      reset_behavior = w.enum({ "clear", "persist" }):optional(),
+    })
+      :optional()
+      :unknown "warn",
+    default_font = w.table():optional(),
+    color = w.object({
+      opacity = w.number():range(0, 1):optional(),
+      set_tab_button = fn(),
+    })
+      :optional()
+      :unknown "warn",
+    defaults = w.object({
+      title = w.string():optional(),
+      sort_by = w.string():optional(),
+      fuzzy = w.boolean():optional(),
+      description = w.string():optional(),
+      fuzzy_description = w.string():optional(),
+      alphabet = w.string():optional(),
+      icons = w.table():optional(),
+      comp = fn(),
+      format_choices = fn(),
+      format_description = fn(),
+    })
+      :optional()
+      :unknown "warn",
+  }):unknown "warn"
+end
+
+local schema
+
+---Copy of `t` without the value at `path`. Only the tables along the path are
+---copied, so user-supplied values (fonts, callbacks) keep their identity.
+---@param t table
+---@param path any[]
+---@param i? integer
+---@return table
+local function without(t, path, i)
+  i = i or 1
+  local copy = {}
+  for k, v in pairs(t) do
+    copy[k] = v
+  end
+  if i == #path then
+    copy[path[i]] = nil
+  elseif type(t[path[i]]) == "table" then
+    copy[path[i]] = without(t[path[i]], path, i + 1)
+  end
+  return copy
+end
+
+---Log invalid fields and drop them so one typo never discards the rest.
+---@param opts table
+---@return table
+local function sanitize(opts)
+  if opts.validate == false then
+    return opts
+  end
+  schema = schema or build_schema()
+  local result = schema:safe_parse(opts)
+  if #result.issues > 0 or #result.warnings > 0 then
+    result:log()
+  end
+  for _ = 1, 32 do
+    if result.ok then
+      break
+    end
+    for _, issue in ipairs(result.issues) do
+      if #issue.path > 0 then
+        opts = without(opts, issue.path)
+      end
+    end
+    result = schema:safe_parse(opts)
+  end
+  return opts
+end
+
 local config = defaults
 
----Merge user configuration into Lantern defaults.
+---Merge user configuration into Lantern defaults. Invalid options are logged
+---and ignored.
 ---@param opts? table
 ---@return Lantern.Config
 function M.setup(opts)
-  config = tbl.merge("force", tbl.deepcopy(defaults), opts or {})
+  if type(opts) ~= "table" then
+    opts = {}
+  end
+  config = tbl.merge("force", tbl.deepcopy(defaults), sanitize(opts))
   return config
 end
 
