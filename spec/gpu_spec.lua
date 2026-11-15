@@ -90,6 +90,24 @@ describe("GPU discovery", function()
     assert.equal(1, calls)
   end)
 
+  it("does not re-import legacy state after clear", function()
+    local fh = assert(io.open(legacy_path, "w"))
+    fh:write '{"fonts":{"id":"hack-nf","wick":"fonts"}}'
+    fh:close()
+    local lantern = lantern_with_state()
+    assert.equal("hack-nf", lantern.state.all().fonts.id)
+
+    lantern.state.clear()
+    lantern.state._reset_for_tests()
+    assert.is_nil(lantern.state.all().fonts)
+
+    wezterm._reset()
+    lantern.state._reset_for_tests()
+    assert.is_nil(lantern.state.all().fonts)
+    assert.truthy(io.open(legacy_path .. ".migrated"))
+    os.remove(legacy_path .. ".migrated")
+  end)
+
   it("logs missing legacy adapter without persisting a false descriptor", function()
     local lantern = lantern_with_state()
     lantern.state.save("gpus", {

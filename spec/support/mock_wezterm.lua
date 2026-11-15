@@ -283,6 +283,17 @@ end
 
 local mock_cache = {}
 
+function mock_cache.plain(value)
+  if type(value) ~= "table" then
+    return value
+  end
+  local out = {}
+  for k, v in pairs(value) do
+    out[k] = mock_cache.plain(v)
+  end
+  return out
+end
+
 function mock_cache.namespace(name)
   local prefix = name .. ":"
   return {

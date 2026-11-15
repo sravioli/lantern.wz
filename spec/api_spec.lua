@@ -416,6 +416,7 @@ describe("lantern api", function()
     assert.equal("lantern.flames.fonts.reset", entry.module)
     remove_file(state_path)
     remove_file(legacy_path)
+    remove_file(legacy_path .. ".migrated")
   end)
 
   it("ships default colorscheme and font assets", function()
