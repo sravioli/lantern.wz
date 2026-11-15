@@ -331,14 +331,14 @@ the wick/flame, sanitized state, plugin revision, and WezTerm build.
 
 ### Local checkout
 
-Clone into `plugins/lantern.wz` beneath `wezterm.config_dir`, then replace
-the remote import:
+Load the working tree directly, so edits take effect on the next config
+reload without a commit or a plugin update. Adjust the path to your clone:
 
 ```lua
 local wezterm = require "wezterm"
-local lantern = wezterm.plugin.require(
-  "file:///" .. wezterm.config_dir .. "/plugins/lantern.wz"
-)
+local root = wezterm.home_dir .. "/path/to/lantern.wz/plugin/"
+package.path = root .. "?.lua;" .. root .. "?/init.lua;" .. package.path
+local lantern = require "lantern.api"
 ```
 
 Its four dependencies still resolve through their remote URLs; keep them

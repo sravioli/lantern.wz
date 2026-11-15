@@ -49,9 +49,9 @@ You need:
 3. To test the plugin locally, point your WezTerm config at the checkout:
 
    ```lua
-   local lantern = wezterm.plugin.require(
-     "file:///" .. wezterm.config_dir .. "/plugins/lantern.wz"
-   )
+   local root = wezterm.home_dir .. "/path/to/lantern.wz/plugin/"
+   package.path = root .. "?.lua;" .. root .. "?/init.lua;" .. package.path
+   local lantern = require "lantern.api"
    ```
 
    This plugin validates its options with warden.wz. Specs load it from a sibling
