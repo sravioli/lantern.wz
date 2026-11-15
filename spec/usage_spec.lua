@@ -168,6 +168,28 @@ describe("lantern usage scenarios", function()
     assert.equal("#DCD7BA", formatter_ctx.foreground)
   end)
 
+  it("colors the fancy tab bar and keeps the window's other frame and color keys", function()
+    set_builtin_flames("colorschemes", { "kanagawa-wave.lua" })
+
+    local lantern = require "lantern.api"
+    lantern.setup { persistence = { enabled = false } }
+
+    local window, get_overrides = new_window {
+      window_frame = { font_size = 11, active_titlebar_bg = "#333333" },
+      colors = { split = "#123456" },
+    }
+    local selector = open_selector(lantern.light.colorscheme(), window)
+    select_choice(selector, window, "kanagawa-wave")
+
+    local overrides = get_overrides()
+    local scheme = require("lantern.flames.colorschemes.kanagawa-wave").scheme
+    assert.equal(scheme.tab_bar.background, overrides.window_frame.active_titlebar_bg)
+    assert.equal(scheme.foreground, overrides.window_frame.active_titlebar_fg)
+    assert.equal(11, overrides.window_frame.font_size)
+    assert.same(scheme.tab_bar, overrides.colors.tab_bar)
+    assert.equal("#123456", overrides.colors.split)
+  end)
+
   it("resets fonts to configured defaults and clears persisted font state", function()
     local state_path = tmp_path "lantern-font-reset-usage.json"
     local legacy_path = tmp_path "lantern-font-reset-legacy.json"

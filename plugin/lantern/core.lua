@@ -160,6 +160,31 @@ local function flame_glow(flame, ctx)
   return glow(ctx)
 end
 
+-- Overrides replace whole top-level keys, so a flame writing one field of
+-- these tables would drop the rest of the user's (e.g. the window_frame font).
+local SEEDED = { "window_frame", "colors" }
+
+---Fill tables a flame newly added to `overrides` with the window's current
+---values for the fields it did not set.
+---@param overrides table
+---@param had table<string, boolean> keys present before the flame ran
+---@param window table
+local function seed_overrides(overrides, had, window)
+  local base
+  for _, key in ipairs(SEEDED) do
+    if not had[key] and type(overrides[key]) == "table" then
+      base = base or (window.effective_config and window:effective_config()) or {}
+      if type(base[key]) == "table" then
+        for k, v in pairs(base[key]) do
+          if overrides[key][k] == nil then
+            overrides[key][k] = v
+          end
+        end
+      end
+    end
+  end
+end
+
 local function flame_ignite(flame, cfg, ctx)
   local ignite = flame.ignite or flame.pick
   if type(ignite) == "function" then
@@ -405,11 +430,16 @@ function Wick:light()
             end
 
             local overrides = inner_window:get_config_overrides() or {}
+            local had = {}
+            for _, key in ipairs(SEEDED) do
+              had[key] = overrides[key] ~= nil
+            end
             self:select(overrides, {
               window = window,
               pane = pane,
               choice = { id = id, label = label },
             })
+            seed_overrides(overrides, had, inner_window)
             window:set_config_overrides(overrides)
           end),
           title = self.title,

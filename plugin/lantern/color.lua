@@ -83,6 +83,24 @@ function M.apply_scheme(cfg, scheme, name)
     },
   }
   M.set_tab_button(cfg, scheme, name)
+
+  -- The fancy tab bar reads neither its titlebar nor its tab colors from the
+  -- scheme, only from window_frame and colors.tab_bar.
+  local tab_bar = scheme.tab_bar
+  if tab_bar then
+    local bar = tab_bar.background or scheme.background
+    local inactive = tab_bar.inactive_tab or {}
+    local frame = cfg.window_frame or {}
+    frame.active_titlebar_bg = bar
+    frame.inactive_titlebar_bg = bar
+    frame.active_titlebar_fg = scheme.foreground
+    frame.inactive_titlebar_fg = inactive.fg_color or scheme.foreground
+    frame.active_titlebar_border_bottom = bar
+    frame.inactive_titlebar_border_bottom = bar
+    cfg.window_frame = frame
+    cfg.colors = cfg.colors or {}
+    cfg.colors.tab_bar = tab_bar
+  end
 end
 
 ---Load a built-in colorscheme flame and return its scheme table.
