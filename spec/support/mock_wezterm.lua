@@ -488,6 +488,9 @@ local mock_warp = {
   },
 }
 
+-- selene: allow(incorrect_standard_library_use)
+package.path = "../warden.wz/plugin/?.lua;../warden.wz/plugin/?/init.lua;" .. package.path
+
 M.plugin = {
   list = function()
     return {
@@ -506,6 +509,10 @@ M.plugin = {
     end
     if url:find("warp.wz", 1, true) then
       return mock_warp
+    end
+    if url:find("warden.wz", 1, true) then
+      -- Real sibling checkout, so specs exercise actual validation.
+      return require "warden.api"
     end
     error("unknown plugin " .. tostring(url))
   end,

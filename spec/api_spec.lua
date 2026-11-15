@@ -445,4 +445,63 @@ describe("lantern api", function()
 
     assert.equal("Discrete", gpu.name)
   end)
+
+  describe("option validation", function()
+    it("logs a wrong type and keeps the default and the valid fields", function()
+      local lantern = require "lantern.api"
+
+      local cfg = lantern.setup { persistence = { enabled = "no", reset_behavior = "persist" } }
+
+      assert.is_true(cfg.persistence.enabled)
+      assert.equal("persist", cfg.persistence.reset_behavior)
+      assert.equal(1, #wezterm._logs.error)
+    end)
+
+    it("warns about unknown keys in fixed sections", function()
+      local lantern = require "lantern.api"
+
+      lantern.setup { color = { opasity = 0.5 } }
+
+      assert.equal(1, #wezterm._logs.warn)
+    end)
+
+    it("rejects an out-of-range opacity and a non-function callback", function()
+      local lantern = require "lantern.api"
+
+      local cfg = lantern.setup { color = { opacity = 2 }, defaults = { comp = "id" } }
+
+      assert.equal(1, cfg.color.opacity)
+      assert.equal("function", type(cfg.defaults.comp))
+      assert.equal(2, #wezterm._logs.error)
+    end)
+
+    it("accepts valid functions and ignores a non-table options value", function()
+      local lantern = require "lantern.api"
+      local comp = function() end
+
+      local cfg = lantern.setup { defaults = { comp = comp } }
+      assert.equal(comp, cfg.defaults.comp)
+      assert.equal(0, #wezterm._logs.error + #wezterm._logs.warn)
+      assert.has_no.errors(function()
+        lantern.setup "oops"
+      end)
+    end)
+
+    it("skips validation and never loads warden when validate = false", function()
+      local lantern = require "lantern.api"
+      local deps = require "lantern.deps"
+      local real = deps.warden
+      finally(function()
+        deps.warden = real
+      end)
+      deps.warden = function()
+        error "warden loaded"
+      end
+
+      local cfg = lantern.setup { validate = false, persistence = { enabled = "no" } }
+
+      assert.equal("no", cfg.persistence.enabled)
+      assert.equal(0, #wezterm._logs.error + #wezterm._logs.warn)
+    end)
+  end)
 end)
