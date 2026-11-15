@@ -183,6 +183,11 @@ local function ensure_loaded(opts)
   for wick_name, entry in pairs(migrated) do
     store:set(wick_name, entry)
   end
+  -- Empty the legacy store so a later clear() is not undone by re-importing
+  -- it; the original file is kept as `.migrated`.
+  local legacy_file = legacy_path()
+  os.rename(legacy_file, legacy_file .. ".migrated")
+  legacy:clear()
   logger:info("migrated legacy picker state into %s", active_path())
 
   return store
