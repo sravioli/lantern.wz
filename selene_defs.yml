@@ -12,5 +12,8 @@ globals:
   before_each:
     args:
       - type: function
+  finally:
+    args:
+      - type: function
   assert:
     any: true
