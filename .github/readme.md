@@ -27,9 +27,10 @@ GPU selection needs [`front_end = "WebGpu"`](https://wezterm.org/config/lua/conf
 
 Automatically loads [log.wz](https://github.com/sravioli/log.wz),
 [memo.wz](https://github.com/sravioli/memo.wz),
-[ribbon.wz](https://github.com/sravioli/ribbon.wz), and
-[warp.wz](https://github.com/sravioli/warp.wz) through remote plugin URLs.
-Dependency failure raises. Install selected fonts yourself.
+[ribbon.wz](https://github.com/sravioli/ribbon.wz),
+[warp.wz](https://github.com/sravioli/warp.wz), and
+[warden.wz](https://github.com/sravioli/warden.wz) through remote plugin URLs.
+Dependency failure raises. Invalid options are logged and ignored. Install selected fonts yourself.
 Save state outside the config directory in a writable file whose parent exists.
 
 ### Install and run
@@ -177,6 +178,18 @@ to wicks you register afterward.
 | `defaults.comp` | `fun(field: string): function` | Built-in reset-first comparator factory | Sort reset-looking choices first, then compare field values as strings. |
 | `defaults.format_choices` | `Lantern.FormatChoices` | Built-in ID/label projection | Convert internal choice records into selector choices; see [types](../plugin/lantern/config.lua). |
 | `defaults.format_description` | `Lantern.FormatDescription` | Built-in icon/prompt formatter | Construct exact/fuzzy prompt text. |
+| `validate` | `boolean` | `true` | Check options with [warden.wz](https://github.com/sravioli/warden.wz). Set `false` to skip checks and never load warden. |
+
+#### Option validation
+
+Options are checked against a schema when you call setup. Invalid fields are logged and ignored, and the rest still apply; unknown keys in fixed sections log a warning.
+Set `validate = false` once your configuration is stable: warden is then never
+downloaded or loaded, and the options are used exactly as written, so typos and
+wrong types go unnoticed.
+
+```lua
+lantern.setup { validate = false }
+```
 
 #### Wick settings
 
@@ -352,9 +365,9 @@ From the repository root, with Lua 5.4 and the named tools installed:
 
 ```sh
 busted --verbose
-luacheck .
-selene --display-style=quiet .
-stylua --check .
+luacheck plugin spec
+selene --display-style=quiet plugin
+stylua --check plugin spec
 ```
 
 The suite uses mocked dependencies and GUI APIs. Follow the
