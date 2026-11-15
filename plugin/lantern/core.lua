@@ -234,8 +234,10 @@ local function flame_specs_from_dir(dir)
   end
 
   local cache_key = FLAME_DIR_CACHE_VERSION .. ":" .. warp_path.normalize(resolved)
-  local specs = cache.get(cache_key)
-  if type(specs) == "table" and #specs > 0 then
+  -- GLOBAL hands back a userdata proxy; plain() turns it into a table. Older
+  -- memo releases leave userdata leaves, so require a string to trust a hit.
+  local specs = deps.memo.cache.plain(cache.get(cache_key))
+  if type(specs) == "table" and type(specs[1]) == "string" then
     return tbl.copy(specs)
   end
 
