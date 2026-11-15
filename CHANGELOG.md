@@ -2,6 +2,21 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [1.2.1](https://github.com/sravioli/lantern.wz/compare/4e77f4a7a5f9adfd03c2d69c53fe7d0ee68d9542..1.2.1) - 2026-11-15
+#### Bug Fixes
+- (**core**) read cached flame specs as plain tables - ([4571510](https://github.com/sravioli/lantern.wz/commit/457151025dcae6cc0b54a5e1072bee797804cd97)) - sravioli
+- (**state**) keep cleared state after migration - ([13d77c8](https://github.com/sravioli/lantern.wz/commit/13d77c87eb9d3d15c02b22638ac613cc59867436)) - sravioli
+- (**tab-bar-style**) keep new tab button styles - ([4e77f4a](https://github.com/sravioli/lantern.wz/commit/4e77f4a7a5f9adfd03c2d69c53fe7d0ee68d9542)) - sravioli
+#### Performance Improvements
+- (**bootstrap**) keep plugin list across reloads - ([026288e](https://github.com/sravioli/lantern.wz/commit/026288e1aac0967cada36888c7921a9691d383be)) - sravioli
+- (**startup**) defer GPU and cache plugin scans - ([ac3fcfd](https://github.com/sravioli/lantern.wz/commit/ac3fcfd9eadec9208ce978eeb71c9ec1b6ba6125)) - sravioli
+#### Documentation
+- (**readme**) update plugin READMEs - ([4d88b91](https://github.com/sravioli/lantern.wz/commit/4d88b910cc1900761f0ef8bc9cc940a883ae4437)) - sravioli
+#### Tests
+- cover legacy re-import and flame cache - ([656c51f](https://github.com/sravioli/lantern.wz/commit/656c51fe1a4fecb8f54ec90649ac13c51eb47f6a)) - sravioli
+
+- - -
+
 ## [1.2.0](https://github.com/sravioli/lantern.wz/compare/7351d18cd726aa1792306cf10eae80f92c0c27f1..1.2.0) - 2026-05-14
 #### Features
 - (**color**) add tab button formatter hook - ([354a3d3](https://github.com/sravioli/lantern.wz/commit/354a3d3a4810f479726347aa192ede9f3ceb2834)) - sravioli
