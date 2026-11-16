@@ -156,6 +156,20 @@ docs: update README usage section
 chore: bump stylua config
 ```
 
+### Signed commits
+
+The `main` branch accepts only signed commits. Sign each commit with a GPG,
+SSH, or S/MIME key, and add the key to your GitHub account. For the steps, see
+[Signing commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
+
+To sign all commits in this repository with an SSH key:
+
+```sh
+git config gpg.format ssh
+git config user.signingkey ~/.ssh/id_ed25519.pub
+git config commit.gpgsign true
+```
+
 ### Branches
 
 Create a branch from `main`. Give it a name that describes the change, and start
