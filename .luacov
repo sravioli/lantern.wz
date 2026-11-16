@@ -3,7 +3,7 @@ return {
   reportfile = "luacov.report.out",
 
   include = {
-    "plugin/",
+    "^plugin/",
   },
 
   exclude = {
