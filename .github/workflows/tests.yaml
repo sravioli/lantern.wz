@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Checkout sibling plugins
         run: |
@@ -35,12 +35,12 @@ jobs:
           EOF
 
       - name: Install Lua
-        uses: leafo/gh-actions-lua@v10
+        uses: leafo/gh-actions-lua@v13
         with:
           luaVersion: "5.4"
 
       - name: Install LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
+        uses: leafo/gh-actions-luarocks@v6
 
       - name: Install dependencies
         run: |
@@ -65,7 +65,7 @@ jobs:
           COVERALLS_REPO_TOKEN: ${{ github.token }}
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: luacov.report.out

@@ -18,13 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Install Cocogitto
-        uses: cocogitto/cocogitto-action@v3.5
+        uses: cocogitto/cocogitto-action@v3.11
         with:
           check: false
 

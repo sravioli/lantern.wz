@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -32,7 +32,7 @@ jobs:
           echo "LATEST_TAG=$latest_tag" >> "$GITHUB_ENV"
 
       - name: SemVer release
-        uses: cocogitto/cocogitto-action@v3.5
+        uses: cocogitto/cocogitto-action@v3.11
         id: release
 
       - name: Generate changelog
@@ -44,7 +44,7 @@ jobs:
         run: echo ${{ env.LATEST_TAG }}
 
       - name: Upload github release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           body_path: GITHUB_CHANGELOG.md
           tag_name: ${{ env.LATEST_TAG }}
