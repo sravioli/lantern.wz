@@ -1,0 +1,81 @@
+name: Bug report
+description: Report a reproducible problem with lantern.wz
+labels: [bug]
+assignees: [sravioli]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search [existing issues](https://github.com/sravioli/lantern.wz/issues)
+        first, to make sure that nobody reported this bug before.
+  - type: input
+    id: wezterm-version
+    attributes:
+      label: WezTerm version
+      description: Output of `wezterm --version`.
+      placeholder: wezterm 20240203-110809-5046fc22
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: lantern.wz version or commit
+      placeholder: v1.0.0 or a commit hash
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation method
+      options:
+        - wezterm.plugin.require
+        - Local checkout
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: Windows 11, macOS 15.4, Ubuntu 24.04
+  - type: textarea
+    id: config
+    attributes:
+      label: Minimal configuration
+      description: The smallest `wezterm.lua` snippet that reproduces the bug.
+      render: lua
+      placeholder: |
+        local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
+        config.keys = {
+          { key = "c", mods = "CTRL|SHIFT", action = lantern.light.colorscheme() },
+        }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What actually happened. Avoid assumptions about the cause.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and output
+      description: |
+        WezTerm debug overlay messages (Ctrl+Shift+L), screenshots, or stack traces.
+      render: text
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Other active plugins, environment variables, or anything else that might help.

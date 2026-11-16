@@ -1,0 +1,12 @@
+---
+# Shared yamllint configuration, synced from community/templates.
+extends: default
+
+rules:
+  line-length: disable
+  document-start: disable
+  # "on:" in workflows is a key, not a boolean.
+  truthy:
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1

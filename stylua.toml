@@ -1,4 +1,5 @@
-syntax = "LuaJIT"
+# WezTerm embeds Lua 5.4.
+syntax = "Lua54"
 column_width = 100
 line_endings = "Unix"
 indent_type = "Spaces"

@@ -1,4 +1,6 @@
-std = "selene_defs"
+# WezTerm embeds Lua 5.4; lua54.yml defines that standard library for selene.
+std = "lua54"
+exclude = ["spec/**"]
 
 [lints]
 shadowing = "allow"

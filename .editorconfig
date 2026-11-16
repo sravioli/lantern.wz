@@ -1,0 +1,25 @@
+# Shared EditorConfig, synced from community/templates. Lua layout itself is
+# owned by stylua.toml.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+# A trailing double space is a Markdown line break.
+trim_trailing_whitespace = false
+# Prettier owns Markdown indentation (list items continue at 3 spaces).
+indent_size = unset
+
+[{LICENSE,LICENSE-DOCS}]
+# License texts stay verbatim.
+indent_size = unset
+
+[*.lua]
+# StyLua checks Lua indentation; long strings can hold fixture data.
+indent_size = unset

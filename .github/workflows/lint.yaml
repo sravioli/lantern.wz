@@ -8,6 +8,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }} ${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -45,6 +48,7 @@ jobs:
       - name: Install luacheck
         run: luarocks install luacheck
 
+      # .luacheckrc decides which files are checked.
       - name: Run luacheck
         run: luacheck .
 
@@ -62,4 +66,22 @@ jobs:
           args: --version
 
       - name: Run selene
-        run: selene --display-style=quiet .
+        run: selene --display-style=quiet plugin
+
+  api:
+    name: API reference
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Pinned: another LuaLS version can render types differently.
+      - name: Install lua-language-server
+        run: |
+          mkdir -p "$RUNNER_TEMP/luals"
+          curl -fsSL https://github.com/LuaLS/lua-language-server/releases/download/3.19.2/lua-language-server-3.19.2-linux-x64.tar.gz \
+            | tar -xz -C "$RUNNER_TEMP/luals"
+          echo "$RUNNER_TEMP/luals/bin" >> "$GITHUB_PATH"
+
+      - name: Check docs/api.md
+        run: python3 -I .github/scripts/apidoc.py --check

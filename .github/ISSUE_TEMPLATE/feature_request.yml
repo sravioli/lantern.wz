@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest a new feature or improvement for lantern.wz
+labels: [enhancement]
+assignees: [sravioli]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search [existing issues](https://github.com/sravioli/lantern.wz/issues)
+        first, to make sure that nobody requested this feature before.
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem or motivation
+      description: The problem this would solve or the use case it enables, and why it belongs in lantern.wz.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How you'd expect the feature to work, including option or behavior changes.
+    validations:
+      required: true
+  - type: textarea
+    id: sketch
+    attributes:
+      label: API sketch
+      description: How you would call it from your WezTerm config.
+      render: lua
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds or other solutions, and why they fall short.

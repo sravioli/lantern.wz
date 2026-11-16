@@ -1,0 +1,48 @@
+---
+# Lua 5.4 standard library for selene, which ships definitions only up to 5.3.
+# WezTerm embeds Lua 5.4.
+#
+# shortcut: parses with the Lua 5.1 grammar, because selene's release binaries
+# cannot parse 5.2+ syntax (Kampfkarren/selene#581) and even a custom build
+# rejects 5.3/5.4 operators and <const>/<close>. Code using that syntax must be
+# excluded from selene (StyLua, luacheck and LuaLS still check it). Switch to
+# `lua_versions: [lua54]` once selene parses Lua 5.4.
+base: lua53
+name: lua54
+lua_versions:
+  - lua51
+globals:
+  warn:
+    args:
+      - type: string
+      - type: "..."
+        required: false
+  coroutine.close:
+    args:
+      - type: any
+  # Lua 5.1 globals that 5.2+ removed and selene's lua52 base still defines.
+  # (bit32 is a table there and cannot be removed; luacheck's lua54 std flags it.)
+  unpack:
+    removed: true
+  loadstring:
+    removed: true
+  getfenv:
+    removed: true
+  module:
+    removed: true
+  math.pow:
+    removed: true
+  math.ldexp:
+    removed: true
+  math.frexp:
+    removed: true
+  math.cosh:
+    removed: true
+  math.sinh:
+    removed: true
+  math.tanh:
+    removed: true
+  math.log10:
+    removed: true
+  table.maxn:
+    removed: true
