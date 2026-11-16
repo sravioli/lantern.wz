@@ -4,7 +4,6 @@
 -- (https://github.com/kanagawa-community/wezterm) and the scene named by $LANTERN_SCENE open. Settings come from the
 -- environment so the script stays the only place that knows the defaults.
 local wezterm = require "wezterm"
-local act = wezterm.action
 
 local repo = assert(os.getenv "LANTERN_REPO", "LANTERN_REPO is not set")
 local scene = assert(os.getenv "LANTERN_SCENE", "LANTERN_SCENE is not set")
@@ -24,9 +23,19 @@ local mosaic = require "mosaic.api"
 wezterm.gui = wezterm.gui or {}
 wezterm.gui.enumerate_gpus = function()
   local gpus = {}
-  for _, g in ipairs { { "Demo Discrete GPU", "DiscreteGpu", 1 }, { "Demo Integrated GPU", "IntegratedGpu", 2 } } do
+  local demo =
+    { { "Demo Discrete GPU", "DiscreteGpu" }, { "Demo Integrated GPU", "IntegratedGpu" } }
+  for i, g in ipairs(demo) do
     for _, backend in ipairs { "Vulkan", "Gl" } do
-      gpus[#gpus + 1] = { name = g[1], backend = backend, device_type = g[2], device = g[3], vendor = g[3], driver = "demo", driver_info = "demo" }
+      gpus[#gpus + 1] = {
+        name = g[1],
+        backend = backend,
+        device_type = g[2],
+        device = i,
+        vendor = i,
+        driver = "demo",
+        driver_info = "demo",
+      }
     end
   end
   return gpus
@@ -73,25 +82,48 @@ end)
 
 -- Pane content that stays open: fastfetch with a config that prints a logo and
 -- colour blocks only, so nothing about the machine the shots are taken on shows.
-local demo = { "sh", "-c", ("fastfetch -c %q; exec sleep 100000"):format(repo .. "/scripts/fastfetch.jsonc") }
+local demo =
+  { "sh", "-c", ("fastfetch -c %q; exec sleep 100000"):format(repo .. "/scripts/fastfetch.jsonc") }
 
 -- scene name -> function(window, pane) that opens it.
 local scenes = {
-  colorscheme = function(w, p) w:perform_action(lantern.light.colorscheme(), p) end,
-  font = function(w, p) w:perform_action(lantern.light.font(), p) end,
-  font_size = function(w, p) w:perform_action(lantern.light.font_size(), p) end,
-  font_leading = function(w, p) w:perform_action(lantern.light.font_leading(), p) end,
-  gpu = function(w, p) w:perform_action(lantern.light.gpu(), p) end,
-  window_opacity = function(w, p) w:perform_action(lantern.light.window_opacity(), p) end,
-  window_padding = function(w, p) w:perform_action(lantern.light.window_padding(), p) end,
-  cursor_style = function(w, p) w:perform_action(lantern.light.cursor_style(), p) end,
-  inactive_pane_opacity = function(w, p) w:perform_action(lantern.light.inactive_pane_opacity(), p) end,
-  font_ligatures = function(w, p) w:perform_action(lantern.light.font_ligatures(), p) end,
-  tab_bar_style = function(w, p) w:perform_action(lantern.light.tab_bar_style(), p) end,
+  colorscheme = function(w, p)
+    w:perform_action(lantern.light.colorscheme(), p)
+  end,
+  font = function(w, p)
+    w:perform_action(lantern.light.font(), p)
+  end,
+  font_size = function(w, p)
+    w:perform_action(lantern.light.font_size(), p)
+  end,
+  font_leading = function(w, p)
+    w:perform_action(lantern.light.font_leading(), p)
+  end,
+  gpu = function(w, p)
+    w:perform_action(lantern.light.gpu(), p)
+  end,
+  window_opacity = function(w, p)
+    w:perform_action(lantern.light.window_opacity(), p)
+  end,
+  window_padding = function(w, p)
+    w:perform_action(lantern.light.window_padding(), p)
+  end,
+  cursor_style = function(w, p)
+    w:perform_action(lantern.light.cursor_style(), p)
+  end,
+  inactive_pane_opacity = function(w, p)
+    w:perform_action(lantern.light.inactive_pane_opacity(), p)
+  end,
+  font_ligatures = function(w, p)
+    w:perform_action(lantern.light.font_ligatures(), p)
+  end,
+  tab_bar_style = function(w, p)
+    w:perform_action(lantern.light.tab_bar_style(), p)
+  end,
 }
 
 wezterm.on("gui-startup", function()
-  local tab, pane, window = wezterm.mux.spawn_window({ args = demo, cwd = wezterm.home_dir })
+  local tab, pane, window = wezterm.mux.spawn_window { args = demo, cwd = wezterm.home_dir }
   tab:set_title "dotfiles"
   -- A split with some output behind the overlay, and two more tabs for the bar.
   if not bar_only then

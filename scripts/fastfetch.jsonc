@@ -2,5 +2,5 @@
 {
   "logo": { "source": "linux", "type": "builtin" },
   "display": { "separator": " " },
-  "modules": ["break", "colors"]
+  "modules": ["break", "colors"],
 }
