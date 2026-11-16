@@ -1,0 +1,14 @@
+---
+# Keeps the actions in .github/workflows current. One grouped pull request a
+# week; the "ci" prefix keeps its commits conventional for cog.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]

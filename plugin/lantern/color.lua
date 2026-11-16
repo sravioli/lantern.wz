@@ -5,6 +5,7 @@ local deps = require "lantern.deps"
 local logger = deps.log.new "Lantern"
 local ribbon = deps.ribbon
 
+---@class Lantern.ColorModule
 local M = {}
 
 ---@class Lantern.ColorContext

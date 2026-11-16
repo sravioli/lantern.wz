@@ -6,9 +6,9 @@ local core = require "lantern.core"
 ---@class Lantern
 ---@field light Lantern.LightApi
 ---@field flames Lantern.FlamesApi
----@field config table
----@field color table
----@field state table
+---@field config Lantern.ConfigModule
+---@field color Lantern.ColorModule
+---@field state Lantern.StateModule
 local M = {}
 
 local function register_builtins()

@@ -6,8 +6,7 @@ local meta = require "lantern.meta"
 local state = require "lantern.state"
 local wezterm = require "wezterm"
 
--- selene: allow(incorrect_standard_library_use)
-local tunpack = unpack or table.unpack
+local tunpack = table.unpack
 local cache = deps.memo.cache.namespace "lantern.flame_dirs"
 local logger = deps.log.new "Lantern"
 local list = deps.warp.list

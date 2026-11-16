@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/sravioli/lantern.wz/blob/main/.github/contributing.md
+    about: How to set up a checkout, run the checks, and open a pull request.

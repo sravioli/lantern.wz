@@ -1,28 +1,8 @@
-std = "lua51"
-
-globals = {
-  "wezterm",
-}
-
-read_globals = {
-  "table",
-  "string",
-  "os",
-  "io",
-  "pcall",
-  "require",
-  "setmetatable",
-  "rawset",
-  "type",
-  "tostring",
-  "tonumber",
-  "select",
-  "error",
-  "pairs",
-  "ipairs",
-}
+-- Shared luacheck configuration, synced from community/templates.
+-- WezTerm embeds Lua 5.4.
+std = "lua54"
 
 exclude_files = {
-  ".luarocks/**",
   "spec/**",
+  ".luarocks/**",
 }

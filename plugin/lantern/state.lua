@@ -8,6 +8,7 @@ local logger = deps.log.new "Lantern.State"
 local path = deps.warp.path
 local state = deps.memo.state
 
+---@class Lantern.StateModule
 local M = {}
 
 local active_store

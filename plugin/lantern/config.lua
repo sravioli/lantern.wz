@@ -10,6 +10,7 @@ local tbl = deps.warp.table
 ---@field default_font table
 ---@field color Lantern.ColorConfig
 ---@field validate boolean Set to `false` to skip option validation (and never load warden).
+---@class Lantern.ConfigModule
 local M = {}
 
 ---@class Lantern.LogConfig

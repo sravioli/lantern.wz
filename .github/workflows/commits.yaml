@@ -1,0 +1,43 @@
+---
+name: commits
+run-name: Check commits
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  cog:
+    name: Conventional commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Install Cocogitto
+        uses: cocogitto/cocogitto-action@v3.5
+        with:
+          check: false
+
+      # Only the new commits are checked, so history from before Conventional
+      # Commits were required never fails. An explicit range also works in
+      # repositories without a release tag yet.
+      - name: Check commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # New branch, or a force push that dropped the old head: check everything.
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            BASE="$(git rev-list --max-parents=0 "$HEAD" | tail -n 1)"
+          fi
+          cog check "$BASE..$HEAD"

@@ -1,0 +1,17 @@
+// Shared markdownlint configuration, synced from community/templates.
+{
+  "gitignore": true,
+  // CHANGELOG.md is generated from commit messages.
+  "ignores": ["CHANGELOG.md"],
+  "config": {
+    "default": true,
+    // Prose is wrapped by hand, and tables and URLs run long.
+    "MD013": false,
+    // Readmes use inline HTML for badges and comments.
+    "MD033": false,
+    // The pull request template's sections sit under the pull request title.
+    "MD041": false,
+    // Match the table layout Prettier produces.
+    "MD060": { "style": "aligned" },
+  },
+}
