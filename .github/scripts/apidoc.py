@@ -21,6 +21,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from pathlib import Path
 
 TYPE_NAME = re.compile(r"[A-Za-z_][\w.]*")
@@ -452,7 +453,13 @@ def main() -> None:
     apis = sorted(repo.glob("plugin/*/api.lua"))
     if len(apis) != 1:
         sys.exit("run from the repository root: need exactly one plugin/<name>/api.lua")
-    text = prettier(Doc(repo, apis[0].parent.name).render())
+    # LuaLS output varies now and then (an optional field loses its `?`).
+    # Three runs and a majority vote keep a rare variant out of docs/api.md.
+    votes = Counter(Doc(repo, apis[0].parent.name).render() for _ in range(3))
+    text, count = votes.most_common(1)[0]
+    if count == 1:
+        sys.exit("LuaLS gave three different results; run again")
+    text = prettier(text)
     target = repo / "docs" / "api.md"
     if check:
         old = target.read_text(encoding="utf-8") if target.exists() else ""
