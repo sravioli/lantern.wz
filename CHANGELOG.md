@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [1.4.0](https://github.com/sravioli/lantern.wz/compare/cc2d2c9a364127974f32d0f903780b109f68e70f..1.4.0) - 2026-11-16
+#### Features
+- (**mosaic**) add the lantern scheme integration - ([cc2d2c9](https://github.com/sravioli/lantern.wz/commit/cc2d2c9a364127974f32d0f903780b109f68e70f)) - sravioli
+
+- - -
+
 ## [1.3.0](https://github.com/sravioli/lantern.wz/compare/17f727ef28c2127df0c6cb4272a5efb6cc596ee1..1.3.0) - 2026-11-16
 #### Features
 - (**config**) validate options with warden - ([17f727e](https://github.com/sravioli/lantern.wz/commit/17f727ef28c2127df0c6cb4272a5efb6cc596ee1)) - sravioli
