@@ -1,0 +1,6 @@
+// Logo and colour blocks only: no host, user or hardware, so screenshots leak nothing.
+{
+  "logo": { "source": "linux", "type": "builtin" },
+  "display": { "separator": " " },
+  "modules": ["break", "colors"]
+}

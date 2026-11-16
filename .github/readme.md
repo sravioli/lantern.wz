@@ -13,7 +13,115 @@ Change colors, fonts, spacing, GPU adapters, or your own presets from a
 selector. A **wick** is a named selector. A **flame** supplies choices with
 `glow()` and applies one with `ignite(config, ctx)`.
 
-[Quick start](#quick-start) · [Usage](#usage) · [Configuration](#configuration) · [API reference](#api-reference) · [Troubleshooting](#troubleshooting) · [Development](#development) · [License](#license)
+[Showcase](#showcase) · [Quick start](#quick-start) · [Usage](#usage) · [Configuration](#configuration) · [API reference](#api-reference) · [Troubleshooting](#troubleshooting) · [Development](#development) · [License](#license)
+
+## Showcase
+
+Every `lantern.light.*` function returns a key assignment that opens one selector. The bar is [mosaic.wz](https://github.com/sravioli/mosaic.wz) with `lantern.scheme`, which shows the active colour scheme. The screenshots show [kanagawa-wave](https://github.com/kanagawa-community/wezterm) (dark) and [kanagawa-lotus](https://github.com/kanagawa-community/wezterm) (light), in Fira Code Nerd Font.
+
+### `lantern.light.colorscheme()`
+
+Every colour scheme, with a swatch of its palette beside the name.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/colorscheme/light.png">
+  <img src="assets/colorscheme/dark.png" alt="The colorscheme selector" width="830">
+</picture>
+
+<details>
+<summary>The other ten selectors</summary>
+
+### `lantern.light.font()`
+
+Switch the font family, or restore the default fonts.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/font/light.png">
+  <img src="assets/font/dark.png" alt="The font selector" width="830">
+</picture>
+
+### `lantern.light.font_size()`
+
+Sizes in points, with a reset entry.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/font_size/light.png">
+  <img src="assets/font_size/dark.png" alt="The font size selector" width="830">
+</picture>
+
+### `lantern.light.font_leading()`
+
+Line height as a multiple of the font height, with a reset entry.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/font_leading/light.png">
+  <img src="assets/font_leading/dark.png" alt="The line height selector" width="830">
+</picture>
+
+### `lantern.light.gpu()`
+
+The GPU adapters per backend. Needs `front_end = "WebGpu"`. The adapters in this screenshot are made up.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/gpu/light.png">
+  <img src="assets/gpu/dark.png" alt="The GPU selector" width="830">
+</picture>
+
+### `lantern.light.window_opacity()`
+
+Opaque, subtle, dim or transparent, with a reset entry.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/window_opacity/light.png">
+  <img src="assets/window_opacity/dark.png" alt="The window opacity selector" width="830">
+</picture>
+
+### `lantern.light.window_padding()`
+
+Compact, normal, spacious or wide padding around the terminal.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/window_padding/light.png">
+  <img src="assets/window_padding/dark.png" alt="The window padding selector" width="830">
+</picture>
+
+### `lantern.light.cursor_style()`
+
+A steady or blinking block, bar or underline, with a reset entry.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/cursor_style/light.png">
+  <img src="assets/cursor_style/dark.png" alt="The cursor style selector" width="830">
+</picture>
+
+### `lantern.light.inactive_pane_opacity()`
+
+Off, subtle, dim or strong dimming of the panes you are not in.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/inactive_pane_opacity/light.png">
+  <img src="assets/inactive_pane_opacity/dark.png" alt="The inactive pane opacity selector" width="830">
+</picture>
+
+### `lantern.light.font_ligatures()`
+
+Standard, discretionary or no ligatures.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/font_ligatures/light.png">
+  <img src="assets/font_ligatures/dark.png" alt="The font ligatures selector" width="830">
+</picture>
+
+### `lantern.light.tab_bar_style()`
+
+The native, retro or powerline tab bar.
+
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="assets/tab_bar_style/light.png">
+  <img src="assets/tab_bar_style/dark.png" alt="The tab bar style selector" width="830">
+</picture>
+
+</details>
 
 ## Quick start
 
