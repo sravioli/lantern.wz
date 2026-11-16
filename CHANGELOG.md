@@ -2,6 +2,29 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [1.3.0](https://github.com/sravioli/lantern.wz/compare/17f727ef28c2127df0c6cb4272a5efb6cc596ee1..1.3.0) - 2026-11-16
+#### Features
+- (**config**) validate options with warden - ([17f727e](https://github.com/sravioli/lantern.wz/commit/17f727ef28c2127df0c6cb4272a5efb6cc596ee1)) - sravioli
+#### Bug Fixes
+- (**color**) color the fancy tab bar on scheme switch - ([697d8c7](https://github.com/sravioli/lantern.wz/commit/697d8c72e1f94a459369068780673ebd0f4f0217)) - sravioli
+#### Documentation
+- (**contributing**) document the signed-commit requirement - ([c97c729](https://github.com/sravioli/lantern.wz/commit/c97c7292fcd4cb7f19fd92f290e28772ca911e8c)) - sravioli
+- (**contributing**) unify guides and templates - ([7315629](https://github.com/sravioli/lantern.wz/commit/731562934fe31891665867f6baca55fe2f55a9f0)) - sravioli
+- (**readme**) unify badge style and add release badge - ([40b806b](https://github.com/sravioli/lantern.wz/commit/40b806b7b98e81e984351cf6f4c04e683f83811f)) - sravioli
+- (**readme**) document option validation and checks - ([6079562](https://github.com/sravioli/lantern.wz/commit/60795624c7d588c15dfdd08f7ce7204a45305ffd)) - sravioli
+- document working-tree local checkout setup - ([98c0067](https://github.com/sravioli/lantern.wz/commit/98c0067945c06840e830ff2449666d94c0e18e48)) - sravioli
+#### Tests
+- (**config**) cover option validation - ([9051545](https://github.com/sravioli/lantern.wz/commit/90515459c0f3895098c5507e9d0f11f28450a9c1)) - sravioli
+#### Continuous Integration
+- (**lint**) declare busted finally for selene - ([4e4ae7a](https://github.com/sravioli/lantern.wz/commit/4e4ae7a7d71bf9a498282860b79872325fe1374e)) - sravioli
+- (**tests**) clone warden.wz for specs - ([54d2866](https://github.com/sravioli/lantern.wz/commit/54d2866ec0654ac1e6788c39f81f8dc13d9e339a)) - sravioli
+- build the API reference from a majority of three LuaLS runs - ([8bffdf4](https://github.com/sravioli/lantern.wz/commit/8bffdf4c63907c363c9319b55e7c08eb5af0be2c)) - sravioli
+- update the actions to the versions Dependabot proposed - ([ad8b757](https://github.com/sravioli/lantern.wz/commit/ad8b75726e0ffbb9be2c6f357190a917e10a2092)) - sravioli
+- pin StyLua to 2.6.0 - ([4b4b6e7](https://github.com/sravioli/lantern.wz/commit/4b4b6e71124e9dee4c6531906fc39f3621d60da2)) - sravioli
+- fix the flaky API check and the EditorConfig rate limit - ([1bf6662](https://github.com/sravioli/lantern.wz/commit/1bf666261712612043759d6fafc66f84a12cd2b7)) - sravioli
+
+- - -
+
 ## [1.2.1](https://github.com/sravioli/lantern.wz/compare/4e77f4a7a5f9adfd03c2d69c53fe7d0ee68d9542..1.2.1) - 2026-11-15
 #### Bug Fixes
 - (**core**) read cached flame specs as plain tables - ([4571510](https://github.com/sravioli/lantern.wz/commit/457151025dcae6cc0b54a5e1072bee797804cd97)) - sravioli
