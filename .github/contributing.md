@@ -125,6 +125,16 @@ Use the
 The form asks for your WezTerm version, your lantern.wz version or commit, a
 minimal configuration, and the steps that reproduce the bug.
 
+To reproduce the bug, copy [`minit.lua`](../minit.lua) from the repository root,
+add your configuration below its marker comment, and run it without your own
+config:
+
+```sh
+wezterm --config-file minit.lua
+```
+
+Paste the edited file into the form.
+
 ### Commit messages
 
 Each commit message must follow

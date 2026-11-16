@@ -39,7 +39,7 @@ body:
     id: config
     attributes:
       label: Minimal configuration
-      description: The smallest `wezterm.lua` snippet that reproduces the bug.
+      description: Your edited `minit.lua` (run with `wezterm --config-file minit.lua`), or the smallest snippet that reproduces the bug.
       render: lua
       placeholder: |
         local lantern = wezterm.plugin.require "https://github.com/sravioli/lantern.wz"
