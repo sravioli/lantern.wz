@@ -14,6 +14,7 @@ Each function gets the same shape: a heading with its name, a `lua` block with
 the full signature, the description, then Parameters and Returns lists.
 """
 
+import difflib
 import json
 import re
 import shutil
@@ -120,10 +121,22 @@ class Doc:
     def __init__(self, repo: Path, name: str):
         self.name = name
         self.plugin_dir = repo / "plugin"
-        self.types = {e["name"]: e for e in run_luals(self.plugin_dir)}
+        self.sources: dict[str, str] = {}
+        # LuaLS sometimes reports an alias by its own name instead of its
+        # expansion. A fresh run fixes it.
+        for _ in range(5):
+            self.types = {e["name"]: e for e in run_luals(self.plugin_dir)}
+            if not any(
+                d.get("type") == "doc.alias" and d.get("view") == e["name"]
+                for e in self.types.values()
+                for d in e.get("defines", [])
+            ):
+                break
+        else:
+            sys.exit(f"{name}: LuaLS kept reporting an alias by its own name")
         ALIASES[:] = sorted(
             {
-                (d["view"], e["name"])
+                (d.get("view", ""), e["name"])
                 for e in self.types.values()
                 for d in e.get("defines", [])
                 if d.get("type") == "doc.alias" and re.search(r"[|(]", d.get("view", ""))
@@ -131,7 +144,6 @@ class Doc:
             key=lambda pair: -len(pair[0]),
         )
         self.prefix = f"{name}/"
-        self.sources: dict[str, str] = {}
         self.root = self.module_class(f"{name}.api")
         if not self.root:  # api.lua can be `return require "<name>.core"`
             m = re.search(r'^return\s+require\s*\(?\s*["\']([\w.]+)["\']', self.source(f"{name}/api.lua"), re.M)
@@ -443,7 +455,10 @@ def main() -> None:
     text = prettier(Doc(repo, apis[0].parent.name).render())
     target = repo / "docs" / "api.md"
     if check:
-        if not target.exists() or target.read_text(encoding="utf-8") != text:
+        old = target.read_text(encoding="utf-8") if target.exists() else ""
+        if old != text:
+            sys.stdout.writelines(difflib.unified_diff(
+                old.splitlines(True), text.splitlines(True), "docs/api.md", "generated"))
             sys.exit("docs/api.md is out of date. Run: python3 -I .github/scripts/apidoc.py")
         print("docs/api.md is up to date")
         return
