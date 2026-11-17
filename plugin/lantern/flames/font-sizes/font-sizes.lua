@@ -10,7 +10,8 @@ M.glow = function()
   for i = 8, 30 do
     sizes[#sizes + 1] = { label = ("%2dpt"):format(i), id = tostring(i) }
   end
-  sizes[#sizes + 1] = { id = tostring(config.get().default_font.font_size or 10), label = "Reset" }
+  -- Its own id: the default size as id would replace that size's entry.
+  sizes[#sizes + 1] = { id = "reset", label = "Reset" }
 
   return sizes
 end

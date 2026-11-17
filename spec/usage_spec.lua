@@ -242,6 +242,31 @@ describe("lantern usage scenarios", function()
     assert.equal("Monaspace Radon", overrides.font_rules[1].font.spec[1].family)
   end)
 
+  it("resets the font picked earlier, not only the configured keys", function()
+    set_builtin_flames("fonts", { "fira-code-nf.lua", "reset.lua" })
+    local lantern = require "lantern.api"
+    lantern.setup { persistence = { enabled = false }, default_font = { font_size = 12 } }
+
+    local window, get_overrides = new_window()
+    select_choice(open_selector(lantern.light.font(), window), window, "fira-code-nf")
+    select_choice(open_selector(lantern.light.font(), window), window, "reset")
+
+    local overrides = get_overrides()
+    assert.is_nil(overrides.font)
+    assert.is_nil(overrides.font_rules)
+    assert.equal(12, overrides.font_size)
+  end)
+
+  it("keeps the default size as its own choice next to Reset", function()
+    local sizes = require("lantern.flames.font-sizes.font-sizes").glow()
+    local ids = {}
+    for _, choice in ipairs(sizes) do
+      assert.is_nil(ids[choice.id], "duplicate id " .. choice.id)
+      ids[choice.id] = true
+    end
+    assert.is_true(ids["10"] and ids.reset)
+  end)
+
   it("changes font size and line height from built-in generated flames", function()
     set_builtin_flames("font-sizes", { "font-sizes.lua" })
     set_builtin_flames("font-leadings", { "font-leadings.lua" })
@@ -274,7 +299,7 @@ describe("lantern usage scenarios", function()
 
     local window, get_overrides = new_window()
     local selector = open_selector(lantern.light.gpu(), window)
-    select_choice(selector, window, "1000")
+    select_choice(selector, window, "1000:0:Dx12")
 
     assert.equal("Lantern: GPU", selector.args.title)
     assert.equal("Discrete", get_overrides().webgpu_preferred_adapter.name)
