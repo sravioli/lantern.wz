@@ -21,10 +21,9 @@ end
 local function fallback_set_tab_button(cfg, scheme)
   cfg.tab_bar_style = cfg.tab_bar_style or {}
 
-  local wezterm = require "wezterm"
-  local sep = wezterm.nerdfonts or {}
-  local right = sep.ple_lower_left_triangle or ""
-  local left = sep.ple_upper_right_triangle or ""
+  local symbol = require("lantern.deps").symbol
+  local right = symbol "Sep.tb.right"
+  local left = symbol "Sep.tb.left"
 
   local states = { "new_tab", "new_tab_hover" }
   for i = 1, #states do

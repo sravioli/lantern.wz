@@ -46,8 +46,7 @@ local M = {}
 ---@field fuzzy { ico: string, punct: string }
 ---@field exact { ico: string, punct: string }
 
-local wezterm = require "wezterm"
-local nf = wezterm.nerdfonts or {}
+local symbol = require("lantern.deps").symbol
 
 local function default_comp(sort_by)
   return function(a, b)
@@ -95,14 +94,14 @@ local defaults = {
     alphabet = "1234567890abcdefghilmnopqrstuvwxyz",
 
     icons = {
-      lantern = nf.md_lan or nf.md_flashlight or nf.md_pickaxe or "",
+      lantern = symbol "Lantern.ico",
       fuzzy = {
-        ico = nf.cod_search_fuzzy or "",
-        punct = "❭",
+        ico = symbol "Lantern.fuzzy.ico",
+        punct = symbol("Lantern.fuzzy.punct", "❭"),
       },
       exact = {
-        ico = nf.cod_search or "",
-        punct = ":",
+        ico = symbol "Lantern.exact.ico",
+        punct = symbol("Lantern.exact.punct", ":"),
       },
     },
 
