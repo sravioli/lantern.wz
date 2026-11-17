@@ -57,10 +57,36 @@ describe("GPU discovery", function()
     assert.equal(1, calls)
   end)
 
+  it("keeps one choice per GPU and backend, even for one vendor", function()
+    wezterm.gui.enumerate_gpus = function()
+      return {
+        {
+          backend = "Vulkan",
+          device = 7,
+          device_type = "DiscreteGpu",
+          name = "Card",
+          vendor = 4098,
+        },
+        { backend = "Gl", device = 7, device_type = "DiscreteGpu", name = "Card", vendor = 4098 },
+      }
+    end
+    local gpu = require "lantern.flames.gpus.gpus"
+    local choices = gpu.glow()
+    assert.equal(2, #choices)
+    assert.are_not.equal(choices[1].id, choices[2].id)
+    local cfg = {}
+    gpu.ignite(cfg, { choice = { id = "4098:7:Gl" } })
+    assert.equal("Gl", cfg.webgpu_preferred_adapter.backend)
+    -- Saved state from older versions holds only the vendor.
+    local legacy = {}
+    gpu.ignite(legacy, { choice = { id = "4098" } })
+    assert.equal("Vulkan", legacy.webgpu_preferred_adapter.backend)
+  end)
+
   it("persists GPU descriptor and restores it without enumeration", function()
     local lantern = lantern_with_state()
     local cfg = {}
-    lantern.wick("gpus"):select(cfg, { choice = { id = "1000" } })
+    lantern.wick("gpus"):select(cfg, { choice = { id = "1000:0:Dx12" } })
     local saved = lantern.state.get "gpus"
     assert.same(cfg.webgpu_preferred_adapter, saved.adapter)
     assert.equal(1, calls)

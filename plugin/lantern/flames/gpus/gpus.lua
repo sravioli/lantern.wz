@@ -19,7 +19,16 @@ local function enumerate_gpus()
   return {}
 end
 
+---One GPU per backend: WezTerm lists the same card once for each backend, and
+---cards from one vendor share a vendor id, so the vendor alone is not unique.
+---@param gpu table
+---@return string
+local function gpu_id(gpu)
+  return ("%s:%s:%s"):format(tostring(gpu.vendor), tostring(gpu.device or 0), tostring(gpu.backend))
+end
+
 local Gpu = {
+  ById = {},
   VendorMap = {},
   ENUMERATED_GPUS = nil,
   AVAILABLE_BACKENDS = {
@@ -45,7 +54,9 @@ local function ensure_gpus()
       Gpu[gpu.device_type] = device_table
     end
     device_table[gpu.backend] = gpu
-    Gpu.VendorMap[tostring(gpu.vendor)] = gpu
+    Gpu.ById[gpu_id(gpu)] = gpu
+    -- Saved state from before ids had device and backend: first card wins.
+    Gpu.VendorMap[tostring(gpu.vendor)] = Gpu.VendorMap[tostring(gpu.vendor)] or gpu
   end
 end
 
@@ -57,7 +68,7 @@ M.glow = function()
   for i = 1, #Gpu.ENUMERATED_GPUS do
     local gpu = Gpu.ENUMERATED_GPUS[i]
     local label = ("[%s] (%s) %s"):format(gpu.backend, gpu.device_type, gpu.name)
-    choices[#choices + 1] = { id = tostring(gpu.vendor), label = label }
+    choices[#choices + 1] = { id = gpu_id(gpu), label = label }
   end
   return choices
 end
@@ -68,7 +79,8 @@ M.ignite = function(cfg, opts)
   local gpu_info = opts.choice.adapter
   if not gpu_info then
     ensure_gpus()
-    gpu_info = Gpu.VendorMap[tostring(opts.choice.id)]
+    local id = tostring(opts.choice.id)
+    gpu_info = Gpu.ById[id] or Gpu.VendorMap[id]
   end
 
   if not gpu_info then
