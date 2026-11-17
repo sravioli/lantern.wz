@@ -1,56 +1,56 @@
+---@module "lantern"
+---@author sravioli
+---@license GNU-GPLv2
+
 ---@class Wezterm
-local wz = require "wezterm" --[[@as Wezterm]]
+local wezterm = require "wezterm" --[[@as Wezterm]]
 local module_name = ...
 
----Locate the plugin's `plugin_dir` and add it to `package.path`.
----@param name string Substring to match against plugin URLs.
+---Locate this plugin_dir and add it to package.path.
 ---@return table|nil plugin Installed plugin entry.
-local function bootstrap(name, refresh)
+local function bootstrap(refresh)
   -- selene: allow(incorrect_standard_library_use)
   local sep = package.config:sub(1, 1)
 
   -- The snapshot also lives in GLOBAL so config reloads skip plugin.list()
   -- (about 20 ms); a plugin missing from it triggers a refresh below.
-  local global = wz.GLOBAL
+  local global = wezterm.GLOBAL
   local plugins = not refresh
-    and (wz.plugin._bootstrap_plugins or (global and global.__bootstrap_plugins))
+    and (wezterm.plugin._bootstrap_plugins or (global and global.__bootstrap_plugins))
   if not plugins then
-    plugins = wz.plugin.list()
-    wz.plugin._bootstrap_plugins = plugins
+    plugins = wezterm.plugin.list()
+    wezterm.plugin._bootstrap_plugins = plugins
     if global and #plugins > 0 then
       global.__bootstrap_plugins = plugins
     end
   end
-  for i = 1, #plugins do
-    local p = plugins[i]
+  for _, p in ipairs(plugins) do
     if
       (module_name and p.component == module_name)
-      or (not module_name and p.url:find(name, 1, true))
+      or (not module_name and p.url:find("lantern.wz", 1, true))
     then
       local base = p.plugin_dir .. sep .. "plugin" .. sep
       local entries = {
         base .. "?.lua",
         base .. "?" .. sep .. "init.lua",
       }
-
-      for j = 1, #entries do
-        local path_entry = entries[j]
-        if not package.path:find(path_entry, 1, true) then
-          package.path = package.path .. ";" .. path_entry
+      for _, entry in ipairs(entries) do
+        if not package.path:find(entry, 1, true) then
+          package.path = package.path .. ";" .. entry
         end
       end
-
-      wz.GLOBAL = wz.GLOBAL or {}
-      wz.GLOBAL.__lantern_plugin_dir = p.plugin_dir
+      -- lantern.meta reads the plugin's own files from here.
+      wezterm.GLOBAL = wezterm.GLOBAL or {}
+      wezterm.GLOBAL.__lantern_plugin_dir = p.plugin_dir
       return p
     end
   end
   if not refresh then
-    return bootstrap(name, true)
+    return bootstrap(true)
   end
-  error("Installed plugin not found: " .. name)
+  error "Installed plugin not found: lantern.wz"
 end
 
-bootstrap "lantern.wz"
+bootstrap()
 
 return require "lantern.api"
