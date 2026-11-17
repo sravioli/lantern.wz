@@ -23,15 +23,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Install Cocogitto
-        uses: cocogitto/cocogitto-action@v3.11
-        with:
-          check: false
-
       # Only the new commits are checked, so history from before Conventional
       # Commits were required never fails. An explicit range also works in
       # repositories without a release tag yet.
-      - name: Check commits
+      - name: Find commit range
+        id: range
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -40,4 +36,10 @@ jobs:
           if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
             BASE="$(git rev-list --max-parents=0 "$HEAD" | tail -n 1)"
           fi
-          cog check "$BASE..$HEAD"
+          echo "args=$BASE..$HEAD" >> "$GITHUB_OUTPUT"
+
+      - name: Check commits
+        uses: cocogitto/cocogitto-action@v4
+        with:
+          command: check
+          args: ${{ steps.range.outputs.args }}
