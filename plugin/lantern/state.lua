@@ -2,7 +2,6 @@
 
 local config = require "lantern.config"
 local deps = require "lantern.deps"
-local wezterm = require "wezterm"
 
 local logger = deps.log.new "Lantern.State"
 local path = deps.warp.path
@@ -67,32 +66,11 @@ local function normalize_state(data)
   return normalized
 end
 
-local function state_dir()
-  local dir
-  if path.separator == "\\" then
-    dir = os.getenv "LOCALAPPDATA" or os.getenv "APPDATA"
-    if dir then
-      dir = path.concat(dir, "wezterm")
-    end
-  else
-    local xdg = os.getenv "XDG_STATE_HOME"
-    if xdg then
-      dir = path.concat(xdg, "wezterm")
-    else
-      local home = os.getenv "HOME"
-      if home then
-        dir = path.concat(home, ".local", "state", "wezterm")
-      end
-    end
-  end
-
-  return dir or wezterm.config_dir or "."
-end
-
 ---@param filename string
 ---@return string
 local function default_state_path(filename)
-  return path.concat(state_dir(), filename)
+  -- Never wezterm.config_dir: WezTerm watches it, so each save would reload the config.
+  return path.concat(deps.warp.filesystem.state_dir() or ".", filename)
 end
 
 local function active_path()

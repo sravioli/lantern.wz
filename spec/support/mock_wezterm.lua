@@ -470,6 +470,9 @@ local mock_warp = {
       end
       return false
     end,
+    state_dir = function()
+      return "C:/Users/mock/AppData/Local/wezterm"
+    end,
     mkdir = function(path)
       M._mkdirs[#M._mkdirs + 1] = path
       return os.execute(("mkdir -p %q"):format(path)) == true

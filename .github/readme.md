@@ -331,7 +331,7 @@ helpers read the current settings when they run.
 
 State defaults to `%LOCALAPPDATA%\wezterm` (then `%APPDATA%\wezterm`) on Windows,
 or `$XDG_STATE_HOME/wezterm` (then `$HOME/.local/state/wezterm`) elsewhere.
-If those are unavailable, it falls back to `wezterm.config_dir`, then `.`.
+If those are unavailable, it falls back to `.`, never to `wezterm.config_dir`.
 Inspect `lantern.state.path()` and create its parent directory yourself.
 Memo's file writes do not create it. Prefer an explicit writable path outside
 the config directory to avoid reload loops.

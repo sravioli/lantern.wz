@@ -2,6 +2,7 @@
 
 local core = require "lantern.core"
 local format = require "lantern.format"
+local width = require("lantern.deps").warp.string.width
 
 local function fallback_foreground(ctx)
   local cfg = ctx.window and ctx.window:effective_config() or {}
@@ -22,7 +23,7 @@ return core.new_wick {
 
     for _, item in pairs(internal_choices) do
       local label = tostring(item.choice.label or item.choice.id)
-      local len = format.width(label)
+      local len = width(label)
       max_label_len = len > max_label_len and len or max_label_len
     end
 
@@ -35,7 +36,7 @@ return core.new_wick {
       local layout = format.layout()
 
       layout:append(nil, fg, label)
-      layout:append(nil, fg, (" "):rep((max_label_len - format.width(label)) + 2))
+      layout:append(nil, fg, (" "):rep((max_label_len - width(label)) + 2))
 
       for i = 1, #colors.ansi do
         local color = colors.ansi[i]

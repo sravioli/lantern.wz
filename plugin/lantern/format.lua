@@ -3,15 +3,8 @@
 local config = require "lantern.config"
 local deps = require "lantern.deps"
 local ribbon = deps.ribbon
-local str = deps.warp.string
 
 local M = {}
-
----@param text string
----@return integer
-function M.width(text)
-  return str.width(text)
-end
 
 ---@param name? string
 ---@param atomic? boolean
