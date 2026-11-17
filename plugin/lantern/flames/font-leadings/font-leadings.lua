@@ -6,8 +6,10 @@ local M = {}
 
 M.glow = function()
   local leadings_list = { { label = "Reset Line Height to Default", id = "reset" } }
-  for i = 0.9, 1.4, 0.1 do
-    table.insert(leadings_list, { label = i .. "x", id = tostring(i) })
+  -- Integer steps: adding 0.1 repeatedly drifts past 1.4 and drops it.
+  for i = 9, 14 do
+    local v = i / 10
+    table.insert(leadings_list, { label = ("%.1fx"):format(v), id = ("%.1f"):format(v) })
   end
   return leadings_list
 end

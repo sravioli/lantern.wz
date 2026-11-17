@@ -345,8 +345,17 @@ function MockStore:get(key)
   return self._slot.data[key]
 end
 
-function MockStore:set(key, value)
+-- Like memo.state: a table is merged into the stored one unless `replace`.
+function MockStore:set(key, value, opts)
   ensure_store_loaded(self)
+  local current = self._slot.data[key]
+  if type(value) == "table" and type(current) == "table" and not (opts and opts.replace) then
+    local merged = deep_copy(current)
+    for k, v in pairs(value) do
+      merged[k] = deep_copy(v)
+    end
+    value = merged
+  end
   self._slot.data[key] = deep_copy(value)
   self:save()
 end

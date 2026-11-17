@@ -236,6 +236,40 @@ describe("lantern api", function()
     os.remove(dir)
   end)
 
+  it("replaces the saved choice instead of merging it into the old one", function()
+    local state_path = tmp_path "lantern-state-replace.json"
+    remove_file(state_path)
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { path = state_path, legacy_path = tmp_path "lantern-legacy-none.json" },
+    }
+    lantern.add_wick("mixed", {
+      flames = {
+        {
+          module_path = "lantern.test_flame",
+          glow = function()
+            return { id = "from-module", label = "Module" }
+          end,
+          ignite = function() end,
+        },
+        {
+          glow = function()
+            return { id = "inline", label = "Inline" }
+          end,
+          ignite = function() end,
+        },
+      },
+    })
+    local wick = lantern.wick "mixed"
+    wick:select({}, { choice = { id = "from-module" } })
+    wick:select({}, { choice = { id = "inline" } })
+
+    local entry = lantern.state.get "mixed"
+    assert.equal("inline", entry.id)
+    assert.is_nil(entry.module)
+    remove_file(state_path)
+  end)
+
   it("persists and rekindles selections", function()
     local state_path = tmp_path "lantern-state-test.json"
     local legacy_path = tmp_path "lantern-legacy-empty.json"

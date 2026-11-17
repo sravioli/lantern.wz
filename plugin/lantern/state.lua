@@ -232,7 +232,8 @@ function M.save(wick_name, entry)
   end
   ensure_dir()
 
-  ensure_loaded():set(wick_name, entry)
+  -- Replace, not merge: a field the new choice lacks must not survive.
+  ensure_loaded():set(wick_name, entry, { replace = true })
 end
 
 ---@param wick_name string

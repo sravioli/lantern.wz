@@ -267,6 +267,14 @@ describe("lantern usage scenarios", function()
     assert.is_true(ids["10"] and ids.reset)
   end)
 
+  it("offers every line height from 0.9 to 1.4", function()
+    local ids = {}
+    for _, choice in ipairs(require("lantern.flames.font-leadings.font-leadings").glow()) do
+      ids[#ids + 1] = choice.id
+    end
+    assert.same({ "reset", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4" }, ids)
+  end)
+
   it("changes font size and line height from built-in generated flames", function()
     set_builtin_flames("font-sizes", { "font-sizes.lua" })
     set_builtin_flames("font-leadings", { "font-leadings.lua" })
