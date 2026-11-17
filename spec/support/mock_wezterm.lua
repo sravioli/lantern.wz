@@ -12,6 +12,7 @@ M._read_dirs = {}
 M._read_dir_calls = {}
 M._globs = {}
 M._glob_calls = {}
+M._mkdirs = {}
 
 M.nerdfonts = {
   cod_search = "search",
@@ -452,6 +453,18 @@ local mock_warp = {
     platform = function()
       return { os = "windows", is_win = true, is_linux = false, is_mac = false }
     end,
+    is_dir = function(path)
+      local fh = io.open(path .. "/.", "r")
+      if fh then
+        fh:close()
+        return true
+      end
+      return false
+    end,
+    mkdir = function(path)
+      M._mkdirs[#M._mkdirs + 1] = path
+      return os.execute(("mkdir -p %q"):format(path)) == true
+    end,
   },
   list = {
     extend = function(dst, src)
@@ -522,6 +535,7 @@ function M._reset()
   M.GLOBAL = {}
   M._events = {}
   M._logs = { info = {}, warn = {}, error = {} }
+  M._mkdirs = {}
   M._read_dirs = {}
   M._read_dir_calls = {}
   M._globs = {}

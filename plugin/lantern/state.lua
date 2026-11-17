@@ -105,6 +105,26 @@ local function legacy_path()
   return cfg.persistence.legacy_path or default_state_path "picker-state.json"
 end
 
+local dir_ready
+
+---memo.state only opens the file, so create its folder the first time we
+---write. A cheap check first: `mkdir` starts a process.
+local function ensure_dir()
+  local file = active_path()
+  if dir_ready == file then
+    return
+  end
+  dir_ready = file
+  local dir = file:match "^(.*)[/\\][^/\\]*$"
+  local fs = deps.warp.filesystem
+  if dir and dir ~= "" and not fs.is_dir(dir) then
+    local ok, err = fs.mkdir(dir)
+    if not ok then
+      logger:warn("unable to create %s: %s", dir, tostring(err))
+    end
+  end
+end
+
 ---@param store_path string
 ---@return memo.state.Store
 local function new_store(store_path)
@@ -199,6 +219,7 @@ function M.flush()
   if not config.get().persistence.enabled then
     return
   end
+  ensure_dir()
 
   get_active_store():save()
 end
@@ -209,6 +230,7 @@ function M.save(wick_name, entry)
   if not config.get().persistence.enabled then
     return
   end
+  ensure_dir()
 
   ensure_loaded():set(wick_name, entry)
 end
@@ -224,6 +246,7 @@ function M.clear(wick_name)
   if not config.get().persistence.enabled then
     return
   end
+  ensure_dir()
 
   local store = ensure_loaded()
   if wick_name then
@@ -255,6 +278,7 @@ function M.legacy_path()
 end
 
 function M._reset_for_tests()
+  dir_ready = nil
   active_store = nil
   active_store_path = nil
   legacy_store = nil

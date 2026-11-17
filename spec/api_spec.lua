@@ -207,6 +207,35 @@ describe("lantern api", function()
     assert.equal("reset", choices[1].id)
   end)
 
+  it("creates a missing state folder before the first save", function()
+    local dir = tmp_path("lantern-missing-" .. os.time())
+    local state_path = dir .. "/sub/state.json"
+    local lantern = require "lantern.api"
+    lantern.setup {
+      persistence = { path = state_path, legacy_path = tmp_path "lantern-legacy-none.json" },
+    }
+    lantern.add_wick("custom", {
+      flames = {
+        {
+          module_path = "lantern.test_flame",
+          glow = function()
+            return { id = "hot", label = "Hot" }
+          end,
+          ignite = function() end,
+        },
+      },
+    })
+    lantern.wick("custom"):select({}, { choice = { id = "hot" } })
+
+    local fh = io.open(state_path, "r")
+    assert.is_not_nil(fh)
+    fh:close()
+    assert.same({ dir .. "/sub" }, wezterm._mkdirs)
+    os.remove(state_path)
+    os.remove(dir .. "/sub")
+    os.remove(dir)
+  end)
+
   it("persists and rekindles selections", function()
     local state_path = tmp_path "lantern-state-test.json"
     local legacy_path = tmp_path "lantern-legacy-empty.json"
