@@ -7,16 +7,14 @@
 ---file only when a layout names it.
 ---
 ---Options (`options["lantern.scheme"]`):
----  icon? string|false  glyph (default: md_palette); false hides it
+---  icon? string|false  glyph (default: sigil's `Palette`); false hides it
 
 return {
   api = 1,
   new = function(opts)
-    local wezterm = require "wezterm"
-
     local icon = opts.icon
     if icon == nil then
-      icon = (wezterm.nerdfonts or {}).md_palette or ""
+      icon = require("lantern.deps").symbol "Palette"
     end
 
     return function(window, _, _, config)

@@ -3,9 +3,8 @@
 ---@class Lantern.Flame
 local M = {}
 
-local wezterm = require "wezterm"
-local ribbon = require("lantern.deps").ribbon
-local nf = wezterm.nerdfonts or {}
+local deps = require "lantern.deps"
+local ribbon = deps.ribbon
 
 local choices = {
   { id = "native", label = "Native tab bar" },
@@ -19,8 +18,8 @@ local function segment(bg, fg, text)
 end
 
 local function powerline_style()
-  local left = nf.ple_lower_left_triangle or "<"
-  local right = nf.ple_upper_right_triangle or ">"
+  local left = deps.symbol("Sep.tb.right", "<")
+  local right = deps.symbol("Sep.tb.left", ">")
 
   return {
     active_tab_left = segment("#7e9cd8", "#1f1f28", " " .. left),

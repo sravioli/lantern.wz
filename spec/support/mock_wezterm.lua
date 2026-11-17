@@ -516,6 +516,34 @@ local mock_warp = {
 -- selene: allow(incorrect_standard_library_use)
 package.path = "../warden.wz/plugin/?.lua;../warden.wz/plugin/?/init.lua;" .. package.path
 
+-- Sigil symbols, using the same strings as the nerdfonts mock above.
+local sigil_symbols = {
+  Lantern = {
+    ico = M.nerdfonts.md_flashlight,
+    fuzzy = { ico = M.nerdfonts.cod_search_fuzzy, punct = "❭" },
+    exact = { ico = M.nerdfonts.cod_search, punct = ":" },
+  },
+  Sep = {
+    tb = {
+      left = M.nerdfonts.ple_upper_right_triangle,
+      right = M.nerdfonts.ple_lower_left_triangle,
+    },
+  },
+}
+
+local mock_sigil = {
+  symbol = function(path)
+    local current = sigil_symbols
+    for part in path:gmatch "[^.]+" do
+      if type(current) ~= "table" then
+        return nil
+      end
+      current = current[part]
+    end
+    return current
+  end,
+}
+
 M.plugin = {
   list = function()
     return {
@@ -534,6 +562,9 @@ M.plugin = {
     end
     if url:find("warp.wz", 1, true) then
       return mock_warp
+    end
+    if url:find("sigil.wz", 1, true) then
+      return mock_sigil
     end
     if url:find("warden.wz", 1, true) then
       -- Real sibling checkout, so specs exercise actual validation.

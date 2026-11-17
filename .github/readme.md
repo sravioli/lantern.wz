@@ -136,6 +136,7 @@ GPU selection needs [`front_end = "WebGpu"`](https://wezterm.org/config/lua/conf
 Automatically loads [log.wz](https://github.com/sravioli/log.wz),
 [memo.wz](https://github.com/sravioli/memo.wz),
 [ribbon.wz](https://github.com/sravioli/ribbon.wz),
+[sigil.wz](https://github.com/sravioli/sigil.wz) (every glyph),
 [warp.wz](https://github.com/sravioli/warp.wz), and
 [warden.wz](https://github.com/sravioli/warden.wz) through remote plugin URLs.
 Dependency failure raises. Invalid options are logged and ignored. Install selected fonts yourself.
@@ -259,34 +260,34 @@ to wicks you register afterward.
 
 #### Plugin settings
 
-| Option                        | Type                                                           | Default                                   | Description                                                                                                              |
-| ----------------------------- | -------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `log.enabled`                 | `boolean`                                                      | `true`                                    | Gate core diagnostics. Dependency loggers can still emit their own errors.                                               |
-| `persistence.enabled`         | `boolean`                                                      | `true`                                    | Gate explicit save/clear/flush helpers. Reads and legacy migration still run.                                            |
-| `persistence.path`            | `string?`                                                      | `nil`                                     | Compute `lantern-state.json` in the platform state directory when omitted.                                               |
-| `persistence.legacy_path`     | `string?`                                                      | `nil`                                     | Compute `picker-state.json` beside the default state location for migration.                                             |
-| `persistence.reset_behavior`  | `"clear"\|"persist"`                                           | `"clear"`                                 | Clear saved reset choices, or retain them like other choices.                                                            |
-| `default_font.font_size`      | `number`                                                       | `10`                                      | Font reset size in points.                                                                                               |
-| `default_font.font`           | `table?`                                                       | `nil`                                     | Font reset family/style object.                                                                                          |
-| `default_font.font_rules`     | `table[]?`                                                     | `nil`                                     | Font rules copied on reset.                                                                                              |
-| `default_font.line_height`    | `number?`                                                      | `nil`                                     | Line-height multiplier copied on reset.                                                                                  |
-| `color.opacity`               | `number`                                                       | `1`                                       | Background-layer opacity when applying a scheme. Use WezTerm's `0..1` range.                                             |
-| `color.set_tab_button`        | `fun(config: table, scheme: table, ctx: Lantern.ColorContext)` | `nil`                                     | Custom new-tab button formatter. Context contains optional `name`. Failure logs and uses the built-in formatter.         |
-| `defaults.title`              | `string`                                                       | `"Light a wick"`                          | Title inherited by newly registered wicks.                                                                               |
-| `defaults.sort_by`            | `string`                                                       | `"id"`                                    | Choice field for the default comparator.                                                                                 |
-| `defaults.fuzzy`              | `boolean`                                                      | `true`                                    | Initial fuzzy selector mode.                                                                                             |
-| `defaults.description`        | `string`                                                       | `"Select a flame."`                       | Exact-mode description.                                                                                                  |
-| `defaults.fuzzy_description`  | `string`                                                       | `"Search"`                                | Fuzzy-mode prompt.                                                                                                       |
-| `defaults.alphabet`           | `string`                                                       | `"1234567890abcdefghilmnopqrstuvwxyz"`    | Exact-mode shortcut characters.                                                                                          |
-| `defaults.icons.lantern`      | `string`                                                       | Computed Nerd Font glyph or `""`          | First available `md_lan`, `md_flashlight`, or `md_pickaxe`.                                                              |
-| `defaults.icons.fuzzy.ico`    | `string`                                                       | Computed `cod_search_fuzzy` glyph or `""` | Fuzzy prompt icon.                                                                                                       |
-| `defaults.icons.fuzzy.punct`  | `string`                                                       | `"❭"`                                     | Fuzzy prompt punctuation.                                                                                                |
-| `defaults.icons.exact.ico`    | `string`                                                       | Computed `cod_search` glyph or `""`       | Exact prompt icon.                                                                                                       |
-| `defaults.icons.exact.punct`  | `string`                                                       | `":"`                                     | Exact prompt punctuation.                                                                                                |
-| `defaults.comp`               | `fun(field: string): function`                                 | Built-in reset-first comparator factory   | Sort reset-looking choices first, then compare field values as strings.                                                  |
-| `defaults.format_choices`     | `Lantern.FormatChoices`                                        | Built-in ID/label projection              | Convert internal choice records into selector choices. See [types](../plugin/lantern/config.lua).                        |
-| `defaults.format_description` | `Lantern.FormatDescription`                                    | Built-in icon/prompt formatter            | Construct exact/fuzzy prompt text.                                                                                       |
-| `validate`                    | `boolean`                                                      | `true`                                    | Check options with [warden.wz](https://github.com/sravioli/warden.wz). Set `false` to skip checks and never load warden. |
+| Option                        | Type                                                           | Default                                 | Description                                                                                                              |
+| ----------------------------- | -------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `log.enabled`                 | `boolean`                                                      | `true`                                  | Gate core diagnostics. Dependency loggers can still emit their own errors.                                               |
+| `persistence.enabled`         | `boolean`                                                      | `true`                                  | Gate explicit save/clear/flush helpers. Reads and legacy migration still run.                                            |
+| `persistence.path`            | `string?`                                                      | `nil`                                   | Compute `lantern-state.json` in the platform state directory when omitted.                                               |
+| `persistence.legacy_path`     | `string?`                                                      | `nil`                                   | Compute `picker-state.json` beside the default state location for migration.                                             |
+| `persistence.reset_behavior`  | `"clear"\|"persist"`                                           | `"clear"`                               | Clear saved reset choices, or retain them like other choices.                                                            |
+| `default_font.font_size`      | `number`                                                       | `10`                                    | Font reset size in points.                                                                                               |
+| `default_font.font`           | `table?`                                                       | `nil`                                   | Font reset family/style object.                                                                                          |
+| `default_font.font_rules`     | `table[]?`                                                     | `nil`                                   | Font rules copied on reset.                                                                                              |
+| `default_font.line_height`    | `number?`                                                      | `nil`                                   | Line-height multiplier copied on reset.                                                                                  |
+| `color.opacity`               | `number`                                                       | `1`                                     | Background-layer opacity when applying a scheme. Use WezTerm's `0..1` range.                                             |
+| `color.set_tab_button`        | `fun(config: table, scheme: table, ctx: Lantern.ColorContext)` | `nil`                                   | Custom new-tab button formatter. Context contains optional `name`. Failure logs and uses the built-in formatter.         |
+| `defaults.title`              | `string`                                                       | `"Light a wick"`                        | Title inherited by newly registered wicks.                                                                               |
+| `defaults.sort_by`            | `string`                                                       | `"id"`                                  | Choice field for the default comparator.                                                                                 |
+| `defaults.fuzzy`              | `boolean`                                                      | `true`                                  | Initial fuzzy selector mode.                                                                                             |
+| `defaults.description`        | `string`                                                       | `"Select a flame."`                     | Exact-mode description.                                                                                                  |
+| `defaults.fuzzy_description`  | `string`                                                       | `"Search"`                              | Fuzzy-mode prompt.                                                                                                       |
+| `defaults.alphabet`           | `string`                                                       | `"1234567890abcdefghilmnopqrstuvwxyz"`  | Exact-mode shortcut characters.                                                                                          |
+| `defaults.icons.lantern`      | `string`                                                       | sigil `Lantern.ico`                     | Flashlight glyph, or `md_pickaxe` when the font lacks it.                                                                |
+| `defaults.icons.fuzzy.ico`    | `string`                                                       | sigil `Lantern.fuzzy.ico`               | Fuzzy prompt icon.                                                                                                       |
+| `defaults.icons.fuzzy.punct`  | `string`                                                       | `"❭"`                                   | Fuzzy prompt punctuation.                                                                                                |
+| `defaults.icons.exact.ico`    | `string`                                                       | sigil `Lantern.exact.ico`               | Exact prompt icon.                                                                                                       |
+| `defaults.icons.exact.punct`  | `string`                                                       | `":"`                                   | Exact prompt punctuation.                                                                                                |
+| `defaults.comp`               | `fun(field: string): function`                                 | Built-in reset-first comparator factory | Sort reset-looking choices first, then compare field values as strings.                                                  |
+| `defaults.format_choices`     | `Lantern.FormatChoices`                                        | Built-in ID/label projection            | Convert internal choice records into selector choices. See [types](../plugin/lantern/config.lua).                        |
+| `defaults.format_description` | `Lantern.FormatDescription`                                    | Built-in icon/prompt formatter          | Construct exact/fuzzy prompt text.                                                                                       |
+| `validate`                    | `boolean`                                                      | `true`                                  | Check options with [warden.wz](https://github.com/sravioli/warden.wz). Set `false` to skip checks and never load warden. |
 
 #### Option validation
 
@@ -394,7 +395,7 @@ configured scheme. mosaic reads the module only when a layout names it.
 mosaic.setup {
   layout = { right = { { "lantern.scheme", "clock" } } },
   options = {
-    ["lantern.scheme"] = { icon = false }, -- optional: hide the glyph (default: md_palette)
+    ["lantern.scheme"] = { icon = false }, -- optional: hide the glyph (default: sigil's Palette)
   },
 }
 ```
