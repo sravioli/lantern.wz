@@ -32,13 +32,16 @@ jobs:
         with:
           command: check
 
+      # The tag reaches the shell as data (env), never as script text.
       - name: Generate changelog
-        run: >-
-          cog changelog --at ${{ github.ref_name }} --template
-          remote > GITHUB_CHANGELOG.md
+        env:
+          TAG: ${{ github.ref_name }}
+        run: cog changelog --at "$TAG" --template remote > GITHUB_CHANGELOG.md
 
       - name: Print latest tag
-        run: echo ${{ github.ref_name }}
+        env:
+          TAG: ${{ github.ref_name }}
+        run: echo "$TAG"
 
       - name: Upload github release
         uses: softprops/action-gh-release@v3
