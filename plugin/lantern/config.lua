@@ -171,27 +171,9 @@ end
 
 local schema
 
----Copy of `t` without the value at `path`. Only the tables along the path are
----copied, so user-supplied values (fonts, callbacks) keep their identity.
----@param t table
----@param path any[]
----@param i? integer
----@return table
-local function without(t, path, i)
-  i = i or 1
-  local copy = {}
-  for k, v in pairs(t) do
-    copy[k] = v
-  end
-  if i == #path then
-    copy[path[i]] = nil
-  elseif type(t[path[i]]) == "table" then
-    copy[path[i]] = without(t[path[i]], path, i + 1)
-  end
-  return copy
-end
-
 ---Log invalid fields and drop them so one typo never discards the rest.
+---warden copies only the tables along a dropped path, so user-supplied values
+---(fonts, callbacks) keep their identity.
 ---@param opts table
 ---@return table
 local function sanitize(opts)
@@ -199,22 +181,12 @@ local function sanitize(opts)
     return opts
   end
   schema = schema or build_schema()
-  local result = schema:safe_parse(opts)
-  if #result.issues > 0 or #result.warnings > 0 then
+  local result = schema:safe_parse(opts, { drop_invalid = true })
+  if #(result.dropped or {}) > 0 or #result.issues > 0 or #result.warnings > 0 then
     result:log()
   end
-  for _ = 1, 32 do
-    if result.ok then
-      break
-    end
-    for _, issue in ipairs(result.issues) do
-      if #issue.path > 0 then
-        opts = without(opts, issue.path)
-      end
-    end
-    result = schema:safe_parse(opts)
-  end
-  return opts
+  -- An older warden without drop_invalid returns no `input`.
+  return result.input or opts
 end
 
 local config = defaults
