@@ -223,7 +223,7 @@ Lantern has three core terms:
 Use the public API terms the same way every time: `lantern`, `wick`, `flame`,
 `glow`, `ignite`, and `rekindle`.
 
-Lantern loads `log.wz`, `memo.wz`, `ribbon.wz`, `warp.wz`, and `warden.wz` with
+Lantern loads `memo.wz`, `warp.wz`, and `warden.wz` with
 `wezterm.plugin.require`. When you test offline or from local checkouts, keep
 these plugins available.
 

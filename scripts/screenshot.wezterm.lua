@@ -9,7 +9,7 @@ local repo = assert(os.getenv "LANTERN_REPO", "LANTERN_REPO is not set")
 local scene = assert(os.getenv "LANTERN_SCENE", "LANTERN_SCENE is not set")
 -- Bar-only scenes: an undecorated one-row window the script crops to the bar.
 local bar_only = scene:match "^%s$" ~= nil
-for _, name in ipairs { "mosaic", "warp", "log", "warden", "sigil", "ribbon", "memo" } do
+for _, name in ipairs { "mosaic", "warp", "warden", "sigil", "memo" } do
   local base = repo .. "/../" .. name .. ".wz/plugin/"
   package.path = base .. "?.lua;" .. base .. "?/init.lua;" .. package.path
 end

@@ -517,6 +517,9 @@ local mock_warp = {
 package.path = "../warden.wz/plugin/?.lua;../warden.wz/plugin/?/init.lua;" .. package.path
 
 -- Sigil symbols, using the same strings as the nerdfonts mock above.
+mock_warp.log = mock_log
+mock_warp.ribbon = mock_ribbon
+
 local sigil_symbols = {
   Lantern = {
     ico = M.nerdfonts.md_flashlight,
@@ -551,14 +554,8 @@ M.plugin = {
     }
   end,
   require = function(url)
-    if url:find("log.wz", 1, true) then
-      return mock_log
-    end
     if url:find("memo.wz", 1, true) then
       return mock_memo
-    end
-    if url:find("ribbon.wz", 1, true) then
-      return mock_ribbon
     end
     if url:find("warp.wz", 1, true) then
       return mock_warp

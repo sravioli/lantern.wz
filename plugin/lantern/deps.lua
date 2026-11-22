@@ -13,10 +13,10 @@ local function require_plugin(url)
   error(("[lantern] unable to load dependency %s: %s"):format(url, tostring(plugin)))
 end
 
-M.log = require_plugin "https://github.com/sravioli/log.wz"
-M.memo = require_plugin "https://github.com/sravioli/memo.wz"
-M.ribbon = require_plugin "https://github.com/sravioli/ribbon.wz"
 M.warp = require_plugin "https://github.com/sravioli/warp.wz"
+M.log = M.warp.log
+M.memo = require_plugin "https://github.com/sravioli/memo.wz"
+M.ribbon = M.warp.ribbon
 local warden, sigil
 
 ---Loaded on first use, so users who set `validate = false` never pull warden.
