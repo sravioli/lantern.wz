@@ -2,6 +2,30 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## [2.0.0](https://github.com/sravioli/lantern.wz/compare/3c71d791e2e892a7e071eaff8be4a156c78e2bfb..2.0.0) - 2026-11-22
+#### Features
+- ![BREAKING](https://img.shields.io/badge/BREAKING-red) take every glyph from sigil (#3) - ([aeff4c0](https://github.com/sravioli/lantern.wz/commit/aeff4c039cb2dff822c8137987f6dd75b4a15b16)) - [@sravioli](https://github.com/sravioli)
+- ![BREAKING](https://img.shields.io/badge/BREAKING-red) take every glyph from sigil - ([3892922](https://github.com/sravioli/lantern.wz/commit/38929223f542bb27348b73f8210bb30c737440ef)) - sravioli
+#### Bug Fixes
+- (**config**) drop only the invalid options - ([7c8d0f7](https://github.com/sravioli/lantern.wz/commit/7c8d0f76298f8817006ffa01f1f23707ae6b3ea4)) - sravioli
+- (**fonts**) clear font and font_rules on reset and give Reset its own id - ([962a03b](https://github.com/sravioli/lantern.wz/commit/962a03b7bab799514f18979c5c6279ca65298d2b)) - sravioli
+- (**gpus**) identify GPUs by vendor, device and backend - ([a5341fa](https://github.com/sravioli/lantern.wz/commit/a5341fa5709cfb0d4dac85765551d055b4a2da5e)) - sravioli
+- (**state**) never fall back to the config directory for state - ([f12f380](https://github.com/sravioli/lantern.wz/commit/f12f380a2c5cf60c1c9cf0dd3f7df91c8e661a20)) - sravioli
+- (**state**) create the state folder before writing - ([aff6834](https://github.com/sravioli/lantern.wz/commit/aff6834ebab6ed7ae56842e4838b3478491a8e0e)) - sravioli
+- replace saved choices and offer line height 1.4 - ([33cc942](https://github.com/sravioli/lantern.wz/commit/33cc9427a593bbf1b3c8a7bb73c652f75e21a99b)) - sravioli
+#### Documentation
+- add a showcase of the pickers with the scripts that take the screenshots - ([be10f20](https://github.com/sravioli/lantern.wz/commit/be10f208b619f8413ea0ffa41f7a11546607aa4a)) - sravioli
+- add minit.lua for reproducing bugs - ([3c71d79](https://github.com/sravioli/lantern.wz/commit/3c71d791e2e892a7e071eaff8be4a156c78e2bfb)) - sravioli
+#### Continuous Integration
+- pass the release tag to the shell through env - ([c6b80a3](https://github.com/sravioli/lantern.wz/commit/c6b80a31f2c420053a69b61ad7d00bc3114682dd)) - sravioli
+- release from the pushed tag - ([07fe4a4](https://github.com/sravioli/lantern.wz/commit/07fe4a4dc58143a4437598f6982b013d27f8f846)) - sravioli
+- count only the plugin's own files in coverage - ([4e19608](https://github.com/sravioli/lantern.wz/commit/4e19608097b14909efa624d21e6ef73866b79ad5)) - sravioli
+- fix lint and formatting of the screenshot scripts - ([e1f9972](https://github.com/sravioli/lantern.wz/commit/e1f997237a34d93b99deba2b7fce613872e5b73a)) - sravioli
+#### Refactoring
+- load log and ribbon from warp - ([f56c5f6](https://github.com/sravioli/lantern.wz/commit/f56c5f645c8894b6b58b353958187d1a25090e56)) - sravioli
+
+- - -
+
 ## [1.4.0](https://github.com/sravioli/lantern.wz/compare/cc2d2c9a364127974f32d0f903780b109f68e70f..1.4.0) - 2026-11-16
 #### Features
 - (**mosaic**) add the lantern scheme integration - ([cc2d2c9](https://github.com/sravioli/lantern.wz/commit/cc2d2c9a364127974f32d0f903780b109f68e70f)) - sravioli
